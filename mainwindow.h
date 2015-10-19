@@ -7,6 +7,8 @@ namespace Ui {
 class MainWindow;
 }
 
+class QListWidgetItem;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -15,8 +17,14 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void pageChanged(QListWidgetItem *current, QListWidgetItem *previous);
+
 private:
-    void addWaterTowers();
+    void createIcons();
+    QWidget *createWaterTowers();
+    QWidget *createBabyCare();
+    QWidget *createOptions();
 
 private:
     Ui::MainWindow *ui;
