@@ -1,22 +1,28 @@
 #include <QTimer>
 #include <QDebug>
 
+#include "multipointcom.h"
 #include "watertower.h"
 
+const quint8 WaterTowerIdentityBase = 0x10;
 const quint32 AcousticVelocity = 340;
 
-quint32 WaterTower::sampleInterval = 10;
+quint8 WaterTower::sampleInterval = 10;
 
 QMap<int, WaterTower*> WaterTower::waterTowerMap;
 
-WaterTower::WaterTower(int id, QObject *parent) :
+WaterTower::WaterTower(quint8 id, QObject *parent) :
     QObject(parent),
     identity(id),
+    enabled(false),
+    com(new MultiPointCom(WaterTowerIdentityBase + id)),
     height(200),
     heightReserved(10),
     waterLevel(0),
     alarmAck(false)
 {
+    connect(com, SIGNAL(responseReceived(char,QByteArray)), this, SLOT(responseReceived(char,QByteArray)));
+
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(trigger()));
     timer->setSingleShot(true);
@@ -24,13 +30,13 @@ WaterTower::WaterTower(int id, QObject *parent) :
 }
 
 /* static */
-void WaterTower::setSampleInterval(quint32 second)
+void WaterTower::setSampleInterval(quint8 second)
 {
     sampleInterval = second;
 }
 
 /* static */
-quint32 WaterTower::getSampleInterval()
+quint8 WaterTower::getSampleInterval()
 {
     return sampleInterval;
 }
@@ -49,9 +55,29 @@ WaterTower *WaterTower::instance(int identity)
     return wt;
 }
 
+void WaterTower::responseReceived(char protocol, const QByteArray &data)
+{
+    if (data.size() != 4) {
+        return;
+    }
+
+    readSample(data.toUInt());
+}
+
 void WaterTower::trigger()
 {
+    com->sendRequest(0, QByteArray(1, sampleInterval));
     timer->start(sampleInterval * 1000);
+}
+
+void WaterTower::pauseAlarm()
+{
+
+}
+
+void WaterTower::stopAlarm()
+{
+    alarmAck = true;
 }
 
 void WaterTower::readSample(quint32 microsecond)
@@ -73,14 +99,4 @@ void WaterTower::readSample(quint32 microsecond)
     } else {
         alarmAck = false;
     }
-}
-
-void WaterTower::pauseAlarm()
-{
-
-}
-
-void WaterTower::stopAlarm()
-{
-    alarmAck = true;
 }
