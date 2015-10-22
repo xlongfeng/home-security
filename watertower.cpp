@@ -61,7 +61,7 @@ void WaterTower::responseReceived(char protocol, const QByteArray &data)
         return;
     }
 
-    readSample(data.toUInt());
+    readSample((data[3] << 24) | (data[2] << 16) | (data[1] << 8) | data[0]);
 }
 
 void WaterTower::trigger()
@@ -82,11 +82,11 @@ void WaterTower::stopAlarm()
 
 void WaterTower::readSample(quint32 microsecond)
 {
-    qint32 distance;
+    qDebug() << "water tower read sample:" << microsecond;
     if (microsecond < 5 || microsecond > 10000)
         return;
 
-    distance = (microsecond / 2) * AcousticVelocity * 100 / 1000000;
+    qint32 distance = (microsecond / 2) * AcousticVelocity * 100 / 1000000;
     waterLevel = height - distance;
     if (waterLevel < 0)
         waterLevel = 0;

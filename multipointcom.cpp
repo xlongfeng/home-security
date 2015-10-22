@@ -16,13 +16,25 @@
  */
 
 #include <math.h>
+#ifdef linux
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <linux/types.h>
+#include <linux/spi/spidev.h>
+#endif
+
+#include <QFile>
 #include <QTime>
 #include <QDebug>
 
+
 #include "multipointcom.h"
 
-const quint32 MaxTransmitTimeout = 200;
-const quint16 IFFilterTable[][2] = {
+// #define DEBUG
+
+static const quint32 MaxTransmitTimeout = 200;
+static const quint16 IFFilterTable[][2] = {
     { 322, 0x26 },
     { 3355, 0x88 },
     { 3618, 0x89 },
@@ -32,24 +44,30 @@ const quint16 IFFilterTable[][2] = {
     { 5770, 0x8D },
     { 6207, 0x8E }
 };
-const quint32 MaxFifoLength = 64;
+static const quint32 MaxFifoLength = 64;
 
 QMutex MultiPointCom::mutex;
 bool MultiPointCom::deviceInitialized = false;
+int MultiPointCom::spi = -1;
+quint64 MultiPointCom::_freqCarrier = 443000000;
+quint8 MultiPointCom::_freqChannel = 0;
+quint16 MultiPointCom::_kbps = 100;
+quint16 MultiPointCom::_packageSign = 0xDEAD;
+
+static const char *spiDev = "/dev/spidev0.0";
+static quint8 mode = SPI_MODE_0;
+static quint8 bits = 8;
+static quint32 speed = 2000000;
+static quint16 delay = 100;
+
+const char *irqGPIO = "/sys/devices/virtual/gpio/gpio134/value";
+const char *sdnGPIO = "/sys/devices/virtual/gpio/gpio135/value";
 
 MultiPointCom::MultiPointCom(quint8 id, QObject *parent) :
     QThread(parent),
     identity(id)
 {
-    mutex.lock();
-    if (!deviceInitialized) {
-        deviceInitialized = true;
-        init();
-        setBaudRate(20);
-        setFrequency(433);
-        readAll();
-    }
-    mutex.unlock();
+
 }
 
 MultiPointCom::~MultiPointCom()
@@ -76,11 +94,22 @@ void MultiPointCom::run()
 {
     mutex.lock();
 
+    if (!deviceInitialized) {
+        deviceInitialized = true;
+        init();
+        setBaudRate(30);
+        setFrequency(433);
+        // readAll();
+    }
+
     if (sendPacket(request.size(), (quint8 *)request.data(), true)) {
         quint8 id = response.at(0);
         if (id == identity) {
+            emit connected();
             emit responseReceived(response.at(1), response.mid(2));
         }
+    } else {
+        emit disconnected();
     }
 
     mutex.unlock();
@@ -126,35 +155,10 @@ void MultiPointCom::setCommsSignature(quint16 signature)
 
 void MultiPointCom::init()
 {
-#ifdef linux
-    GPIO_InitTypeDef gpioInitStructure;
-
-    /* _intPin */
-    gpioInitStructure.GPIO_Pin = GPIO_Pin_6;
-    gpioInitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-    gpioInitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-    GPIO_Init(GPIOB, &gpioInitStructure);
-
-    /* _sdnPin */
-    gpioInitStructure.GPIO_Pin = GPIO_Pin_9;
-    gpioInitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-    gpioInitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_Init(GPIOB, &gpioInitStructure);
-#endif
-
-    turnOff();
-
-#ifdef linux
-    ptrSPI->Initialize(NULL);
-    ptrSPI->PowerControl(ARM_POWER_FULL);
-    ptrSPI->Configure(ARM_SPI_CPOL0_CPHA0, ARM_SPI_MSB_LSB);
-    ptrSPI->BusSpeed(SPI_BUS_SPEED);
-    ptrSPI->SlaveSelect(ARM_SPI_SS_INACTIVE);
-#endif
-
-#ifdef DEBUG
-    printf("SPI is initialized now.\n");
-#endif
+    spi = open(spiDev, O_RDWR);
+    ioctl(spi, SPI_IOC_WR_MODE, &mode);
+    ioctl(spi, SPI_IOC_WR_BITS_PER_WORD, &bits);
+    ioctl(spi, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
 
     hardReset();
 }
@@ -212,7 +216,7 @@ bool MultiPointCom::sendPacket(quint8 length, const quint8* data, bool waitRespo
 
     while (QTime::currentTime() < timeout) {
 #ifdef linux
-        if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_6) != Bit_RESET) {
+        if (!isInterrupt()) {
             continue;
         }
 #endif
@@ -243,6 +247,7 @@ bool MultiPointCom::sendPacket(quint8 length, const quint8* data, bool waitRespo
 //#ifdef DEBUG
     printf("Timeout in Transit -- \n");
 //#endif
+    emit error(TransmitTimeout);
     switchMode(Ready);
 
     if (readRegister(REG_DEV_STATUS) & 0x80) {
@@ -256,7 +261,7 @@ bool MultiPointCom::waitForPacket(int waitMs)
 {
     startListening();
 
-    QTime	timeout = QTime::currentTime().addMSecs(waitMs);
+    QTime timeout = QTime::currentTime().addMSecs(waitMs);
 
     while (QTime::currentTime() < timeout) {
         if (!isPacketReceived()) {
@@ -267,7 +272,8 @@ bool MultiPointCom::waitForPacket(int waitMs)
     }
     //timeout occured.
 
-    printf("Timeout in receive-- \n");
+    // printf("Timeout in receive-- \n");
+    emit error(ReceiveTimeout);
 
     switchMode(Ready);
     clearRxFIFO();
@@ -383,39 +389,44 @@ quint8 MultiPointCom::readRegister(Registers reg)
 void MultiPointCom::burstWrite(Registers startReg, const quint8 value[], quint8 length)
 {
 #ifdef linux
-    quint8 regVal = (quint8) startReg | 0x80; // set MSB
+    QByteArray txBuf;
+    txBuf.append((quint8) startReg | 0x80); // set MSB
+    txBuf.append((const char *)value, length);
 
-    ptrSPI->SlaveSelect(ARM_SPI_SS_ACTIVE);
-    ptrSPI->Transferquint8(regVal);
+    spi_ioc_transfer tr;
+    memset(&tr, 0, sizeof(spi_ioc_transfer));
 
-    for (quint8 i = 0; i < length; ++i) {
-#ifdef DEBUG
-        printf("Writing: %x | %x\n", (regVal != 0xFF ? (regVal + i) & 0x7F : 0x7F), value[i]);
-#endif
-        ptrSPI->Transferquint8(value[i]);
-    }
+    tr.tx_buf = (unsigned long)txBuf.data();
+    tr.rx_buf = 0;
+    tr.len = txBuf.size();
+    tr.delay_usecs = delay;
+    tr.speed_hz = speed;
+    tr.bits_per_word = bits;
 
-    ptrSPI->SlaveSelect(ARM_SPI_SS_INACTIVE);
+    ioctl(spi, SPI_IOC_MESSAGE(1), &tr);
 #endif
 }
 
 void MultiPointCom::burstRead(Registers startReg, quint8 value[], quint8 length)
 {
 #ifdef linux
-    quint8 regVal = (quint8) startReg & 0x7F; // set MSB
+    QByteArray txBuf(length + 1, 0xFF);
+    QByteArray rxBuf(length + 1, 0x0);
+    txBuf[0] = ((quint8) startReg & 0x7F); // clr MSB
 
-    ptrSPI->SlaveSelect(ARM_SPI_SS_ACTIVE);
-    ptrSPI->Transferquint8(regVal);
+    spi_ioc_transfer tr;
+    memset(&tr, 0, sizeof(spi_ioc_transfer));
 
-    for (quint8 i = 0; i < length; ++i) {
-        value[i] = ptrSPI->Transferquint8(0xFF);
+    tr.tx_buf = (unsigned long)txBuf.data();
+    tr.rx_buf = (unsigned long)rxBuf.data();
+    tr.len = txBuf.size();
+    tr.delay_usecs = delay;
+    tr.speed_hz = speed;
+    tr.bits_per_word = bits;
 
-#ifdef DEBUG
-        printf("Reading: %x | %x\n", (regVal != 0x7F ? (regVal + i) & 0x7F : 0x7F), value[i]);
-#endif
-    }
+    ioctl(spi, SPI_IOC_MESSAGE(1), &tr);
 
-    ptrSPI->SlaveSelect(ARM_SPI_SS_INACTIVE);
+    memcpy(value, rxBuf.data() + 1, length);
 #endif
 }
 
@@ -463,16 +474,27 @@ void MultiPointCom::softReset()
 
 void MultiPointCom::hardReset()
 {
-
     turnOff();
     turnOn();
 
-    quint8 reg = readRegister(REG_INT_STATUS2);
-    while ((reg & 0x02) != 0x02) {
-        printf("POR: %x\n", reg);
-        msleep(50);
+    QTime timeout = QTime::currentTime().addMSecs(1000);
+    quint8 reg;
+
+    do {
         reg = readRegister(REG_INT_STATUS2);
-    }
+        if ((reg & 0x02) == 0x02)
+            break;
+        printf("POR: %x\n", reg);
+
+        if (timeout < QTime::currentTime()) {
+            emit error(DeviceBroken);
+            return;
+        }
+    } while (1);
+
+#ifdef DEBUG
+    printf("POR: %x\n", reg);
+#endif
 
     boot();
 }
@@ -498,7 +520,7 @@ void MultiPointCom::startListening()
 bool MultiPointCom::isPacketReceived()
 {
 #ifdef linux
-    if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_6) != Bit_RESET) {
+    if (!isInterrupt()) {
         return false; // if no interrupt occured, no packet received is assumed (since startListening will be called prior, this assumption is enough)
     }
 #endif
@@ -547,7 +569,7 @@ bool MultiPointCom::isPacketReceived()
 void MultiPointCom::turnOn()
 {
 #ifdef linux
-    GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_RESET);; // turn on the chip now
+    puts(sdnGPIO, "0");
 #endif
     msleep(20);
 }
@@ -555,7 +577,44 @@ void MultiPointCom::turnOn()
 void MultiPointCom::turnOff()
 {
 #ifdef linux
-    GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_SET); // turn off the chip now
+    puts(sdnGPIO, "1");
 #endif
     msleep(1);
+}
+
+bool MultiPointCom::isInterrupt()
+{
+    char value[1];
+    bool interrupted = false;
+
+    if (gets(irqGPIO, value, 1) == 1) {
+        if (value[0] == '0')
+            interrupted = true;
+    }
+
+    return interrupted;
+}
+
+int MultiPointCom::puts(const char *filename, const char *str)
+{
+    QFile file(filename);
+    int ret = -1;
+
+    if (file.open(QIODevice::WriteOnly | QIODevice::Unbuffered)) {
+        ret = file.write(str);
+        file.close();
+    }
+    return ret;
+}
+
+int MultiPointCom::gets(const char *filename, char *str, int len)
+{
+    QFile file(filename);
+    int ret = -1;
+
+    if (file.open(QIODevice::ReadOnly | QIODevice::Unbuffered)) {
+        ret = file.read(str, len);
+        file.close();
+    }
+    return ret;
 }

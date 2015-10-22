@@ -9,6 +9,13 @@ class MultiPointCom : public QThread
     Q_OBJECT
 
 public:
+    enum Error {
+        NoError,
+        DeviceBroken,
+        TransmitTimeout,
+        ReceiveTimeout
+    };
+
     MultiPointCom(quint8 id, QObject *parent = 0);
     ~MultiPointCom();
 
@@ -16,6 +23,9 @@ public:
 
 signals:
     void responseReceived(char protocol, const QByteArray &data);
+    void connected();
+    void disconnected();
+    void error(Error error);
 
 protected:
     virtual void run();
@@ -60,6 +70,7 @@ private:
 
     void turnOn();
     void turnOff();
+    bool isInterrupt();
 
     void switchMode(quint8 mode);
 
@@ -67,11 +78,6 @@ private:
     enum AntennaMode {
         RXMode = 0x04, TXMode = 0x08, Ready = 0x01, TuneMode = 0x02
     };
-
-    quint64 _freqCarrier;
-    quint8 _freqChannel;
-    quint16 _kbps;
-    quint16 _packageSign;
 
     enum Registers {
         REG_DEV_TYPE = 0x00,
@@ -167,12 +173,20 @@ private:
     void burstWrite(Registers startReg, const quint8 value[], quint8 length);
     void burstRead(Registers startReg, quint8 value[], quint8 length);
 
+    int puts(const char *filename, const char *str);
+    int gets(const char *filename, char *str, int len);
+
 private:
     quint8 identity;
     QByteArray request;
     QByteArray response;
     static QMutex mutex;
     static bool deviceInitialized;
+    static int spi;
+    static quint64 _freqCarrier;
+    static quint8 _freqChannel;
+    static quint16 _kbps;
+    static quint16 _packageSign;
 };
 
 #endif // MULTIPOINTCOM_H
