@@ -17,13 +17,15 @@ SOURCES += main.cpp\
     watertower.cpp \
     watertowerwidget.cpp \
     avatarwidget.cpp \
-    multipointcom.cpp
+    multipointcom.cpp \
+    babycare.cpp
 
 HEADERS  += mainwindow.h \
     watertower.h \
     watertowerwidget.h \
     avatarwidget.h \
-    multipointcom.h
+    multipointcom.h \
+    babycare.h
 
 FORMS    += mainwindow.ui \
     watertowerwidget.ui
