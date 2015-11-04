@@ -16,13 +16,11 @@
  */
 
 #include <math.h>
-#ifdef linux
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <linux/types.h>
 #include <linux/spi/spidev.h>
-#endif
 
 #include <QFile>
 #include <QTime>
@@ -58,7 +56,7 @@ static const char *spiDev = "/dev/spidev0.0";
 static quint8 mode = SPI_MODE_0;
 static quint8 bits = 8;
 static quint32 speed = 2000000;
-static quint16 delay = 100;
+static quint16 delay = 10;
 
 const char *irqGPIO = "/sys/devices/virtual/gpio/gpio134/value";
 const char *sdnGPIO = "/sys/devices/virtual/gpio/gpio135/value";
@@ -388,7 +386,6 @@ quint8 MultiPointCom::readRegister(Registers reg)
 
 void MultiPointCom::burstWrite(Registers startReg, const quint8 value[], quint8 length)
 {
-#ifdef linux
     QByteArray txBuf;
     txBuf.append((quint8) startReg | 0x80); // set MSB
     txBuf.append((const char *)value, length);
@@ -404,12 +401,10 @@ void MultiPointCom::burstWrite(Registers startReg, const quint8 value[], quint8 
     tr.bits_per_word = bits;
 
     ioctl(spi, SPI_IOC_MESSAGE(1), &tr);
-#endif
 }
 
 void MultiPointCom::burstRead(Registers startReg, quint8 value[], quint8 length)
 {
-#ifdef linux
     QByteArray txBuf(length + 1, 0xFF);
     QByteArray rxBuf(length + 1, 0x0);
     txBuf[0] = ((quint8) startReg & 0x7F); // clr MSB
@@ -427,7 +422,6 @@ void MultiPointCom::burstRead(Registers startReg, quint8 value[], quint8 length)
     ioctl(spi, SPI_IOC_MESSAGE(1), &tr);
 
     memcpy(value, rxBuf.data() + 1, length);
-#endif
 }
 
 void MultiPointCom::readAll()

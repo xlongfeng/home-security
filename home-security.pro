@@ -8,16 +8,23 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = home-security
+TARGET = skynet
 TEMPLATE = app
-
 
 SOURCES += main.cpp\
         mainwindow.cpp \
     watertower.cpp \
     watertowerwidget.cpp \
-    avatarwidget.cpp \
-    multipointcom.cpp
+    avatarwidget.cpp
+
+
+unix {
+    SOURCES += multipointcom-unix.cpp
+}
+
+win32 {
+    SOURCES += multipointcom-win32.cpp
+}
 
 HEADERS  += mainwindow.h \
     watertower.h \
