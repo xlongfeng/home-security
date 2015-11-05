@@ -238,6 +238,8 @@ bool MultiPointCom::sendPacket(quint8 length, const quint8* data, bool waitRespo
             } else {
                 return true;
             }
+        } else {
+            yieldCurrentThread();
         }
     }
 
@@ -263,7 +265,7 @@ bool MultiPointCom::waitForPacket(int waitMs)
 
     while (QTime::currentTime() < timeout) {
         if (!isPacketReceived()) {
-            continue;
+            yieldCurrentThread();
         } else {
             return true;
         }

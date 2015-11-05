@@ -5,6 +5,7 @@
 #include <QMap>
 
 class QTimer;
+
 class MultiPointCom;
 
 class WaterTower : public QObject
@@ -17,25 +18,13 @@ public:
         return identity;
     }
 
-    void setHeight(qint32 centimetre)
-    {
-        height = centimetre;
-    }
+    bool isEnabled() const;
+    void setEnable(bool enable);
 
-    void setHeightReserved(qint32 centimetre)
-    {
-        heightReserved = centimetre;
-    }
-
-    qint32 getHeight() const
-    {
-        return height;
-    }
-
-    qint32 getHeightReserved() const
-    {
-        return heightReserved;
-    }
+    void setHeight(qint32 centimetre);
+    qint32 getHeight();
+    void setHeightReserved(qint32 centimetre);
+    qint32 getHeightReserved();
 
     qint32 getWaterLevel() const
     {
@@ -45,9 +34,10 @@ public:
     static void setSampleInterval(quint8 second);
     static quint8 getSampleInterval();
     static WaterTower *instance(int identity);
+    static const int MaxQuantity;
 
 signals:
-    void waterLevelChanged(quint32 centimetre);
+    void waterLevelChanged(quint32 centimetre, int progress);
     void highWaterLevelAlarm();
 
 public slots:
@@ -64,11 +54,11 @@ private:
 
 private:
     quint8 identity;
-    bool enabled;
     QTimer *timer;
 
     MultiPointCom *com;
 
+    bool enabled;
     /*  measured in the unit of "centimetre"  */
     qint32 height;
     qint32 heightReserved;
@@ -77,7 +67,7 @@ private:
     bool alarmAck;
 
     static quint8 sampleInterval;
-    static QMap<int, WaterTower*> waterTowerMap;
+    static QMap<int, WaterTower*> instanceMap;
 };
 
 #endif // WATERTOWER_H

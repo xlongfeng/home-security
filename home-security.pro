@@ -15,7 +15,9 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     watertower.cpp \
     watertowerwidget.cpp \
-    avatarwidget.cpp
+    avatarwidget.cpp \
+    alarmcontroller.cpp \
+    settings.cpp
 
 
 unix {
@@ -30,7 +32,9 @@ HEADERS  += mainwindow.h \
     watertower.h \
     watertowerwidget.h \
     avatarwidget.h \
-    multipointcom.h
+    multipointcom.h \
+    alarmcontroller.h \
+    settings.h
 
 FORMS    += mainwindow.ui \
     watertowerwidget.ui

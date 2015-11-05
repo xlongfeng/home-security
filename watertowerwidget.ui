@@ -22,7 +22,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Barrel Height (cm)</string>
+        <string>Barrel Height</string>
        </property>
       </widget>
      </item>
@@ -39,7 +39,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Water Level   (cm)</string>
+        <string>Water Level</string>
        </property>
       </widget>
      </item>
