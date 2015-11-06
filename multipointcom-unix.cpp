@@ -46,6 +46,7 @@ static const quint32 MaxFifoLength = 64;
 
 QMutex MultiPointCom::mutex;
 bool MultiPointCom::deviceInitialized = false;
+QTime MultiPointCom::lastConnectTime = QTime::currentTime();
 int MultiPointCom::spi = -1;
 quint64 MultiPointCom::_freqCarrier = 443000000;
 quint8 MultiPointCom::_freqChannel = 0;
@@ -92,17 +93,26 @@ void MultiPointCom::run()
 {
     mutex.lock();
 
+    QTime timeout = lastConnectTime.addSecs(30);
+
+    if (timeout < QTime::currentTime()) {
+        qDebug() << "Device connected timeout";
+        deviceInitialized = false;
+    }
+
     if (!deviceInitialized) {
+        qDebug() << "Multi point communication initialized";
         deviceInitialized = true;
         init();
         setBaudRate(30);
         setFrequency(433);
-        // readAll();
+        lastConnectTime = QTime::currentTime();
     }
 
     if (sendPacket(request.size(), (quint8 *)request.data(), true)) {
         quint8 id = response.at(0);
         if (id == identity) {
+            lastConnectTime = QTime::currentTime();
             emit connected();
             emit responseReceived(response.at(1), response.mid(2));
         }
@@ -153,6 +163,8 @@ void MultiPointCom::setCommsSignature(quint16 signature)
 
 void MultiPointCom::init()
 {
+    if (spi > 0)
+        close(spi);
     spi = open(spiDev, O_RDWR);
     ioctl(spi, SPI_IOC_WR_MODE, &mode);
     ioctl(spi, SPI_IOC_WR_BITS_PER_WORD, &bits);
@@ -480,7 +492,7 @@ void MultiPointCom::hardReset()
         reg = readRegister(REG_INT_STATUS2);
         if ((reg & 0x02) == 0x02)
             break;
-        printf("POR: %x\n", reg);
+        /* printf("POR: %x\n", reg); */
 
         if (timeout < QTime::currentTime()) {
             emit error(DeviceBroken);

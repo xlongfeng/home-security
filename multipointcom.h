@@ -182,6 +182,7 @@ private:
     QByteArray response;
     static QMutex mutex;
     static bool deviceInitialized;
+    static QTime lastConnectTime;
     static int spi;
     static quint64 _freqCarrier;
     static quint8 _freqChannel;
