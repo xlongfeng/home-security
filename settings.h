@@ -6,9 +6,8 @@
 class Settings : public QSettings
 {
     Q_OBJECT
-public:
-    explicit Settings(const QString &fileName, Format format = IniFormat, QObject *parent = 0);
 
+public:
     static Settings *instance();
 
 signals:
@@ -16,6 +15,7 @@ signals:
 public slots:
 
 private:
+    explicit Settings(const QString &fileName, Format format = IniFormat, QObject *parent = 0);
     Q_DISABLE_COPY(Settings)
 
 private:

@@ -3,6 +3,7 @@
 
 #include "watertower.h"
 #include "watertowerwidget.h"
+#include "notifypanel.h"
 #include "ui_watertowerwidget.h"
 
 QSpinBox *WaterTowerWidget::sampleIntervalWidget = 0;
@@ -42,7 +43,6 @@ WaterTowerWidget::WaterTowerWidget(int id, QWidget *parent) :
     ui(new Ui::WaterTowerWidget)
 {
     ui->setupUi(this);
-    ui->progressBar->setStyleSheet(disconnectStyle);
 
     setTitle(ReadableName[id]);
     waterTower = WaterTower::instance(id);
@@ -55,7 +55,9 @@ WaterTowerWidget::WaterTowerWidget(int id, QWidget *parent) :
     ui->levelLineEdit->setText(QString::number(waterTower->getWaterLevel()));
     ui->avatarWidget->setPixmap(QPixmap(QString("%1.png").arg(id)));
     ui->progressBar->setRange(0, 100);
-    ui->progressBar->setValue(0);
+    ui->progressBar->setValue(50);
+    ui->progressBar->setTextVisible(false);
+    ui->progressBar->setStyleSheet(disconnectStyle);
 
     enableWidget = new QCheckBox(this);
     enableWidget->setChecked(waterTower->isEnabled());
@@ -150,8 +152,8 @@ void WaterTowerWidget::deviceDisconnect()
 
 void WaterTowerWidget::highWaterLevelAlarm()
 {
-    QMessageBox messagebox(QMessageBox::NoIcon, title(), tr("High water level alarm!"), QMessageBox::Ok);
-    messagebox.setIconPixmap(QPixmap(QString("%1.png").arg(waterTower->getIdentity())).scaledToHeight(256));
-    messagebox.exec();
+    NotifyPanel::instance()->addNotify(NotifyPanel::Middle,
+            tr("%1: High water level alarm!").arg(readableName(waterTower->getIdentity())),
+            QString("%1.png").arg(waterTower->getIdentity()));
     waterTower->stopAlarm();
 }

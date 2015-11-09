@@ -191,7 +191,6 @@ void WaterTower::readSample(quint32 microsecond)
     int progress = waterLevel * 100 / height;
     emit waterLevelChanged(waterLevel, progress);
     if (distance < heightReserved) {
-        qDebug() << "high water level alarm";
         if (isConnected && !isAlarm) {
             isAlarm = true;
             emit highWaterLevelAlarm();

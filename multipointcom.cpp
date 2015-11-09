@@ -136,7 +136,7 @@ void MultiPointCom::run()
         response.resize(udp->pendingDatagramSize());
         udp->readDatagram(response.data(), response.size());
         quint8 id = response.at(0);
-        qDebug() << identity << response.toHex();
+        // qDebug() << identity << response.toHex();
         if (id == identity) {
             lastConnectTime = QTime::currentTime();
             emit deviceConnected();

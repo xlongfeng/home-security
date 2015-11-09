@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui multimedia network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     avatarwidget.cpp \
     alarmcontroller.cpp \
     settings.cpp \
-    multipointcom.cpp
+    multipointcom.cpp \
+    notifypanel.cpp
 
 HEADERS  += mainwindow.h \
     watertower.h \
@@ -26,7 +27,8 @@ HEADERS  += mainwindow.h \
     avatarwidget.h \
     multipointcom.h \
     alarmcontroller.h \
-    settings.h
+    settings.h \
+    notifypanel.h
 
 FORMS    += mainwindow.ui \
     watertowerwidget.ui

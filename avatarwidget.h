@@ -14,6 +14,7 @@ public:
     void setPixmap(const QPixmap &pixmap)
     {
         this->pixmap = pixmap;
+        update();
     }
 
 protected:
