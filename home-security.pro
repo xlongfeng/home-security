@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     alarmcontroller.cpp \
     settings.cpp \
     multipointcom.cpp \
-    notifypanel.cpp
+    notifypanel.cpp \
+    babycare.cpp
 
 HEADERS  += mainwindow.h \
     watertower.h \
@@ -28,7 +29,8 @@ HEADERS  += mainwindow.h \
     multipointcom.h \
     alarmcontroller.h \
     settings.h \
-    notifypanel.h
+    notifypanel.h \
+    babycare.h
 
 FORMS    += mainwindow.ui \
     watertowerwidget.ui

@@ -5,6 +5,7 @@
 
 #include "watertower.h"
 #include "watertowerwidget.h"
+#include "babycare.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -117,7 +118,7 @@ QWidget *MainWindow::createWaterTowers()
 
 QWidget *MainWindow::createBabyCare()
 {
-    return new QWidget(this);
+    return new BabyCare(this);
 }
 
 QWidget *MainWindow::createOptions()
