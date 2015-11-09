@@ -24,6 +24,7 @@
 
 #include <QFile>
 #include <QTime>
+#include <QUdpSocket>
 #include <QDebug>
 
 
@@ -47,6 +48,7 @@ static const quint32 MaxFifoLength = 64;
 QMutex MultiPointCom::mutex;
 bool MultiPointCom::deviceInitialized = false;
 QTime MultiPointCom::lastConnectTime = QTime::currentTime();
+quint32 MultiPointCom::disconnectCount = 1;
 int MultiPointCom::spi = -1;
 quint64 MultiPointCom::_freqCarrier = 443000000;
 quint8 MultiPointCom::_freqChannel = 0;
@@ -96,10 +98,11 @@ void MultiPointCom::run()
     QTime timeout = lastConnectTime.addSecs(30);
 
     if (timeout < QTime::currentTime()) {
-        qDebug() << "Device connected timeout";
+        qDebug() << "Device connected timeout" << disconnectCount++;
         deviceInitialized = false;
     }
 
+#if __arm__
     if (!deviceInitialized) {
         qDebug() << "Multi point communication initialized";
         deviceInitialized = true;
@@ -113,12 +116,37 @@ void MultiPointCom::run()
         quint8 id = response.at(0);
         if (id == identity) {
             lastConnectTime = QTime::currentTime();
-            emit connected();
+            emit deviceConnected();
             emit responseReceived(response.at(1), response.mid(2));
         }
     } else {
-        emit disconnected();
+        emit deviceDisconnected();
     }
+#else
+    if (!deviceInitialized) {
+        qDebug() << "Multi point communication initialized";
+        deviceInitialized = true;
+        lastConnectTime = QTime::currentTime();
+    }
+
+    QUdpSocket *udp = new QUdpSocket();
+    udp->writeDatagram(request, QHostAddress::LocalHost, 19999);
+
+    if (udp->waitForReadyRead(100)) {
+        response.resize(udp->pendingDatagramSize());
+        udp->readDatagram(response.data(), response.size());
+        quint8 id = response.at(0);
+        qDebug() << identity << response.toHex();
+        if (id == identity) {
+            lastConnectTime = QTime::currentTime();
+            emit deviceConnected();
+            emit responseReceived(response.at(1), response.mid(2));
+        }
+    } else {
+        emit deviceDisconnected();
+    }
+    delete udp;
+#endif
 
     mutex.unlock();
 }

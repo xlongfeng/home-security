@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,16 +17,8 @@ SOURCES += main.cpp\
     watertowerwidget.cpp \
     avatarwidget.cpp \
     alarmcontroller.cpp \
-    settings.cpp
-
-
-unix {
-    SOURCES += multipointcom-unix.cpp
-}
-
-win32 {
-    SOURCES += multipointcom-win32.cpp
-}
+    settings.cpp \
+    multipointcom.cpp
 
 HEADERS  += mainwindow.h \
     watertower.h \
@@ -38,3 +30,5 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui \
     watertowerwidget.ui
+
+TRANSLATIONS += skynet_zh.ts

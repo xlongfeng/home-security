@@ -37,11 +37,15 @@ public:
     static const int MaxQuantity;
 
 signals:
+    void deviceConnected();
+    void deviceDisconnected();
     void waterLevelChanged(quint32 centimetre, int progress);
     void highWaterLevelAlarm();
 
 public slots:
     void responseReceived(char protocol, const QByteArray &data);
+    void deviceConnect();
+    void deviceDisconnect();
     void trigger();
     void pauseAlarm();
     void stopAlarm();
@@ -64,7 +68,8 @@ private:
     qint32 heightReserved;
     qint32 waterLevel;
 
-    bool alarmAck;
+    bool isConnected;
+    bool isAlarm;
 
     static quint8 sampleInterval;
     static QMap<int, WaterTower*> instanceMap;

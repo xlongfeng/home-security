@@ -22,9 +22,14 @@ WaterTower::WaterTower(quint8 id, QObject *parent) :
     height(200),
     heightReserved(10),
     waterLevel(0),
-    alarmAck(false)
+    isConnected(false),
+    isAlarm(false)
 {
     connect(com, SIGNAL(responseReceived(char,QByteArray)), this, SLOT(responseReceived(char,QByteArray)));
+    connect(com, SIGNAL(deviceConnected()), this, SIGNAL(deviceConnected()));
+    connect(com, SIGNAL(deviceDisconnected()), this, SIGNAL(deviceDisconnected()));
+    connect(com, SIGNAL(deviceConnected()), this, SLOT(deviceConnect()));
+    connect(com, SIGNAL(deviceDisconnected()), this, SLOT(deviceDisconnect()));
 
     getSampleInterval();
     getHeight();
@@ -132,7 +137,26 @@ void WaterTower::responseReceived(char protocol, const QByteArray &data)
         return;
     }
 
-    readSample((data[3] << 24) | (data[2] << 16) | (data[1] << 8) | data[0]);
+    quint32 microsecond = (quint8)data[0];
+    microsecond = (quint8)data[3];
+    microsecond <<= 8;
+    microsecond |= (quint8)data[2];
+    microsecond <<= 8;
+    microsecond |= (quint8)data[1];
+    microsecond <<= 8;
+    microsecond |= (quint8)data[0];
+
+    readSample(microsecond);
+}
+
+void WaterTower::deviceConnect()
+{
+    isConnected = true;
+}
+
+void WaterTower::deviceDisconnect()
+{
+    isConnected = false;
 }
 
 void WaterTower::trigger()
@@ -150,13 +174,12 @@ void WaterTower::pauseAlarm()
 
 void WaterTower::stopAlarm()
 {
-    alarmAck = true;
+
 }
 
 void WaterTower::readSample(quint32 microsecond)
 {
-    qDebug() << identity << "water tower read sample:" << microsecond;
-    if (microsecond < 5 || microsecond > 10000)
+    if (microsecond < 5 || microsecond > 60000)
         return;
 
     qint32 distance = (microsecond / 2) * AcousticVelocity * 100 / 1000000;
@@ -168,9 +191,12 @@ void WaterTower::readSample(quint32 microsecond)
     int progress = waterLevel * 100 / height;
     emit waterLevelChanged(waterLevel, progress);
     if (distance < heightReserved) {
-        if (!alarmAck)
+        qDebug() << "high water level alarm";
+        if (isConnected && !isAlarm) {
+            isAlarm = true;
             emit highWaterLevelAlarm();
+        }
     } else {
-        alarmAck = false;
+        isAlarm = false;
     }
 }

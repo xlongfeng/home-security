@@ -23,8 +23,8 @@ public:
 
 signals:
     void responseReceived(char protocol, const QByteArray &data);
-    void connected();
-    void disconnected();
+    void deviceConnected();
+    void deviceDisconnected();
     void error(Error error);
 
 protected:
@@ -183,6 +183,7 @@ private:
     static QMutex mutex;
     static bool deviceInitialized;
     static QTime lastConnectTime;
+    static quint32 disconnectCount;
     static int spi;
     static quint64 _freqCarrier;
     static quint8 _freqChannel;
