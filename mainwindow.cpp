@@ -1,13 +1,49 @@
 #include <QLabel>
 #include <QTabWidget>
 #include <QTableWidget>
+#include <QDateTimeEdit>
+#include <QTimer>
+#include <QFormLayout>
+#include <QSlider>
+#include <QDialog>
+#include <QKeyEvent>
 #include <QDebug>
 
 #include "watertower.h"
 #include "watertowerwidget.h"
 #include "babycare.h"
 #include "mainwindow.h"
+#include "settings.h"
+#include "hal.h"
 #include "ui_mainwindow.h"
+
+QuickDialog::QuickDialog(const QString &label, int value, int minimum, int maximum, QWidget *parent) :
+    QDialog(parent)
+{
+    QFormLayout *layout = new QFormLayout(this);
+    QSlider *slider = new QSlider(Qt::Horizontal);
+    slider->setMinimumWidth(240);
+    slider->setRange(minimum, maximum);
+    slider->setValue(value);
+    connect(slider, SIGNAL(valueChanged(int)), this, SLOT(setValue(int)));
+    layout->addRow(label, slider);
+
+    timer = new QTimer(this);
+    timer->start(3000);
+    connect(timer, SIGNAL(timeout()), this, SLOT(accept()));
+}
+
+void QuickDialog::setValue(int value)
+{
+    timer->start();
+    emit valueChanged(value);
+}
+
+void QuickDialog::keyPressEvent(QKeyEvent *event)
+{
+    accept();
+    QDialog::keyPressEvent(event);
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -31,6 +67,18 @@ MainWindow::MainWindow(QWidget *parent) :
     for (int i = 0; i < WaterTower::MaxQuantity; i++) {
         connect(WaterTowerWidget::instance(i), SIGNAL(layoutChanged()), this, SLOT(waterTowerLayoutChanged()));
     }
+
+    dateTime = new QDateTimeEdit(QDateTime::currentDateTime(), this);
+    dateTime->setReadOnly(true);
+    dateTime->setButtonSymbols(QAbstractSpinBox::NoButtons);
+    dateTime->setDisplayFormat("yyyy/MM/dd HH:mm:ss");
+    ui->statusBar->addPermanentWidget(dateTime);
+
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(dateTimeUpdate()));
+    timer->start(1000);
+
+    Hal::instance()->setBrightness(Settings::instance()->getBrightness());
 }
 
 MainWindow::~MainWindow()
@@ -56,6 +104,57 @@ void MainWindow::waterTowerLayoutChanged()
         delete item;
     }
     insertWaterTowers(layout);
+}
+
+void MainWindow::dateTimeUpdate()
+{
+    dateTime->setDateTime(QDateTime::currentDateTime());
+}
+
+void MainWindow::brightnessChanged(int value)
+{
+    Settings::instance()->setBrightness(value);
+    Hal::instance()->setBrightness(value);
+}
+
+void MainWindow::volumeChanged(int value)
+{
+    Settings::instance()->setVolume(value);
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    switch (event->key()) {
+    case Qt::Key_F1:
+    {
+        int maxBrightness = Hal::instance()->getMaxBrightness();
+        int brightness = Settings::instance()->getBrightness();
+        brightness = brightness < maxBrightness ? brightness : maxBrightness;
+        QuickDialog *dialog = new QuickDialog(tr("Brightness"), brightness, 1, maxBrightness);
+        connect(dialog, SIGNAL(valueChanged(int)), brightnessSilder, SLOT(setValue(int)));
+        dialog->exec();
+        delete dialog;
+        event->accept();
+        break;
+    }
+    case Qt::Key_F2:
+    {
+        QuickDialog *dialog = new QuickDialog(tr("Volume"), Settings::instance()->getVolume(), 0, 100);
+        connect(dialog, SIGNAL(valueChanged(int)), volumeSilder, SLOT(setValue(int)));
+        dialog->exec();
+        delete dialog;
+        event->accept();
+        break;
+    }
+    case Qt::Key_PowerOff:
+    {
+        Hal::instance()->togglePower();
+        break;
+    }
+    default:
+        QMainWindow::keyPressEvent(event);
+        break;
+    }
 }
 
 void MainWindow::createIcons()
@@ -126,7 +225,7 @@ QWidget *MainWindow::createOptions()
     QTabWidget *tabWidget = new QTabWidget(this);
     tabWidget->addTab(createWaterTowerOptions(), tr("Water Tower"));
     tabWidget->addTab(new QWidget, tr("Baby Care"));
-    tabWidget->addTab(new QWidget, tr("General"));
+    tabWidget->addTab(createGeneralOptions(), tr("General"));
     return tabWidget;
 }
 
@@ -173,6 +272,33 @@ QWidget *MainWindow::createWaterTowerOptions()
         table->setCellWidget(i, 3, WaterTowerWidget::instance(i)->getReservedHeightWidget());
     }
     layout->addWidget(table);
+
+    return option;
+}
+
+QWidget *MainWindow::createGeneralOptions()
+{
+    QWidget *option = new QWidget(this);
+    QHBoxLayout *layout = new QHBoxLayout(option);
+
+    QFormLayout *leftLayout = new QFormLayout();
+    layout->addLayout(leftLayout);
+    brightnessSilder = new QSlider(Qt::Horizontal);
+    int maxBrightness = Hal::instance()->getMaxBrightness();
+    int brightness = Settings::instance()->getBrightness();
+    brightness = brightness < maxBrightness ? brightness : maxBrightness;
+    brightnessSilder->setRange(1, maxBrightness);
+    brightnessSilder->setValue(brightness);
+    connect(brightnessSilder, SIGNAL(valueChanged(int)), this, SLOT(brightnessChanged(int)));
+    leftLayout->addRow(new QLabel(tr("Brightness")), brightnessSilder);
+
+    QFormLayout *rightLayout = new QFormLayout();
+    layout->addLayout(rightLayout);
+    volumeSilder = new QSlider(Qt::Horizontal);
+    volumeSilder->setRange(0, 100);
+    volumeSilder->setValue(Settings::instance()->getVolume());
+    connect(volumeSilder, SIGNAL(valueChanged(int)), this, SLOT(volumeChanged(int)));
+    rightLayout->addRow(new QLabel(tr("Volume")), volumeSilder);
 
     return option;
 }

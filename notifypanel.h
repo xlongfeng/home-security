@@ -33,7 +33,6 @@ private:
     Q_DISABLE_COPY(NotifyPanel)
     void nextNotify();
     void showNotify(Priority priority, const QStringList &notify);
-    void setLedValue(const QString &led, bool on);
     void ledsOff();
 
 private:
@@ -51,7 +50,6 @@ private:
     QMap<Priority, int> blinkIntervalMap;
 
     bool isOn;
-    QMap<Priority, QString> ledMap;
     QTimer *timer;
 
     QMap<Priority, QString> mediaMap;

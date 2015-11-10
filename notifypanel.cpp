@@ -6,17 +6,14 @@
 #include <QUuid>
 #include <QMediaPlayer>
 #include <QDir>
-#include <QFile>
 #include <QTimer>
 #include <QDebug>
 
 #include "avatarwidget.h"
 #include "notifypanel.h"
+#include "settings.h"
+#include "hal.h"
 
-
-const char *RedLed = "/sys/class/gpio/gpio295/value";
-const char *YellowLed = "/sys/class/gpio/gpio296/value";
-const char *BlueLed = "/sys/class/gpio/gpio296/value";
 
 NotifyPanel *NotifyPanel::self = 0;
 
@@ -46,10 +43,6 @@ NotifyPanel::NotifyPanel(QWidget *parent) :
     blinkIntervalMap[High] = 1000;
 
     isOn = false;
-    ledMap[Low] = BlueLed;
-    ledMap[Middle] = YellowLed;
-    ledMap[High] = RedLed;
-
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(blink()));
 
@@ -60,6 +53,8 @@ NotifyPanel::NotifyPanel(QWidget *parent) :
     mediaMap[High] = QString("%1/%2.mp3").arg(QDir::currentPath()).arg(QLatin1String("high"));
 
     player = new QMediaPlayer(this);
+    player->setVolume(Settings::instance()->getVolume());
+    connect(Settings::instance(), SIGNAL(volumeChanged(int)), player, SLOT(setVolume(int)));
     connect(player, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(playerStateChanged(QMediaPlayer::State)));
 }
 
@@ -83,6 +78,7 @@ void NotifyPanel::addNotify(Priority priority, const QString &text, const QStrin
     if (notifies) {
         notifies->append(QStringList() << QUuid::createUuid().toString() << text << icon);
         nextNotify();
+        Hal::instance()->powerOn();
     }
 }
 
@@ -107,7 +103,20 @@ void NotifyPanel::confirm()
 void NotifyPanel::blink()
 {
     isOn = !isOn;
-    setLedValue(ledMap[priority], isOn);
+
+    switch (priority) {
+    case Low:
+        Hal::instance()->setBlueLed(isOn);
+        break;
+    case Middle:
+        Hal::instance()->setYellowLed(isOn);
+        break;
+    case High:
+        Hal::instance()->setRedLed(isOn);
+        break;
+    default:
+        break;
+    }
 }
 
 void NotifyPanel::playerStateChanged(QMediaPlayer::State state)
@@ -151,20 +160,11 @@ void NotifyPanel::showNotify(Priority priority, const QStringList &notify)
     }
 }
 
-void NotifyPanel::setLedValue(const QString &led, bool on)
-{
-    QFile file(led);
-    if (file.open(QIODevice::WriteOnly | QIODevice::Unbuffered)) {
-        file.write(on ? "1" : "0");
-        file.close();
-    }
-}
-
 void NotifyPanel::ledsOff()
 {
     timer->stop();
     isOn = false;
-    setLedValue(RedLed, false);
-    setLedValue(YellowLed, false);
-    setLedValue(BlueLed, false);
+    Hal::instance()->setBlueLed(isOn);
+    Hal::instance()->setYellowLed(isOn);
+    Hal::instance()->setRedLed(isOn);
 }

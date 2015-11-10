@@ -13,3 +13,24 @@ Settings *Settings::instance()
         self = new Settings("config.ini");
     return self;
 }
+
+void Settings::setBrightness(int value)
+{
+    setValue("Brightness", value);
+}
+
+int Settings::getBrightness()
+{
+    return value("Brightness", 4).toInt();
+}
+
+void Settings::setVolume(int value)
+{
+    setValue("Volume", value);
+    emit volumeChanged(value);
+}
+
+int Settings::getVolume()
+{
+    return value("Volume", 50).toInt();
+}

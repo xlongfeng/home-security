@@ -10,7 +10,14 @@ class Settings : public QSettings
 public:
     static Settings *instance();
 
+    void setBrightness(int value);
+    int getBrightness();
+
+    void setVolume(int value);
+    int getVolume();
+
 signals:
+    void volumeChanged(int value);
 
 public slots:
 
