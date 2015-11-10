@@ -43,6 +43,8 @@ WaterTowerWidget::WaterTowerWidget(int id, QWidget *parent) :
     ui(new Ui::WaterTowerWidget)
 {
     ui->setupUi(this);
+    ui->heightLabel->setVisible(false);
+    ui->heightLineEdit->setVisible(false);
 
     setTitle(ReadableName[id]);
     waterTower = WaterTower::instance(id);
@@ -147,6 +149,7 @@ void WaterTowerWidget::deviceConnect()
 
 void WaterTowerWidget::deviceDisconnect()
 {
+    ui->progressBar->setValue(50);
     ui->progressBar->setStyleSheet(disconnectStyle);
 }
 

@@ -20,7 +20,7 @@
    <item>
     <layout class="QFormLayout" name="formLayout">
      <item row="0" column="0">
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="heightLabel">
        <property name="text">
         <string>Barrel Height</string>
        </property>
@@ -64,13 +64,13 @@
       <widget class="QProgressBar" name="progressBar">
        <property name="minimumSize">
         <size>
-         <width>32</width>
+         <width>24</width>
          <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>32</width>
+         <width>24</width>
          <height>16777215</height>
         </size>
        </property>
