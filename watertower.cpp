@@ -17,7 +17,7 @@ QMap<int, WaterTower*> WaterTower::instanceMap;
 WaterTower::WaterTower(quint8 id, QObject *parent) :
     QObject(parent),
     identity(id),
-    com(new MultiPointCom(WaterTowerIdentityBase + id)),
+    com(new MultiPointCom()),
     enabled(false),
     height(200),
     heightReserved(10),
@@ -25,6 +25,7 @@ WaterTower::WaterTower(quint8 id, QObject *parent) :
     isConnected(false),
     isAlarm(false)
 {
+    com->setAddress(WaterTowerIdentityBase + getAddress());
     connect(com, SIGNAL(responseReceived(char,QByteArray)), this, SLOT(responseReceived(char,QByteArray)));
     connect(com, SIGNAL(deviceConnected()), this, SIGNAL(deviceConnected()));
     connect(com, SIGNAL(deviceDisconnected()), this, SIGNAL(deviceDisconnected()));
@@ -43,6 +44,23 @@ WaterTower::WaterTower(quint8 id, QObject *parent) :
     if (enabled) {
         timer->start(3 * 1000);
     }
+}
+
+quint8 WaterTower::getAddress()
+{
+    quint8 address;
+    Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
+    address = Settings::instance()->value("address", 0xFF).toUInt();
+    Settings::instance()->endGroup();
+    return address;
+}
+
+void WaterTower::setAddress(quint8 address)
+{
+    Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
+    Settings::instance()->setValue("address", address);
+    Settings::instance()->endGroup();
+    com->setAddress(WaterTowerIdentityBase + address);
 }
 
 bool WaterTower::isEnabled() const
@@ -179,16 +197,18 @@ void WaterTower::stopAlarm()
 
 void WaterTower::readSample(quint32 microsecond)
 {
-    if (microsecond < 5 || microsecond > 60000)
-        return;
+    if (microsecond > 60000)
+        microsecond = 60000;
 
-    qint32 distance = (microsecond / 2) * AcousticVelocity * 100 / 1000000;
+    qint32 distance = (microsecond * AcousticVelocity) / (10000 * 2);
     waterLevel = height - distance;
+
     if (waterLevel < 0)
         waterLevel = 0;
     if (waterLevel > height)
         waterLevel = height;
     int progress = waterLevel * 100 / height;
+
     emit waterLevelChanged(waterLevel, progress);
     if (distance < heightReserved) {
         if (isConnected && !isAlarm) {

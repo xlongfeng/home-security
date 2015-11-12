@@ -18,6 +18,9 @@ public:
         return identity;
     }
 
+    quint8 getAddress();
+    void setAddress(quint8 address);
+
     bool isEnabled() const;
     void setEnable(bool enable);
 

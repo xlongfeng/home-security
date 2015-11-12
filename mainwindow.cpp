@@ -254,12 +254,12 @@ QWidget *MainWindow::createWaterTowerOptions()
     layout->addWidget(line);
 #endif
 
-    QTableWidget * table = new QTableWidget(0, 4, option);
+    QTableWidget * table = new QTableWidget(0, 5, option);
     table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     table->setAlternatingRowColors(true);
     table->setShowGrid(true);
     table->setHorizontalHeaderLabels(QStringList()
-        << tr("Identity") << tr("Enable")
+        << tr("Name") << tr("Enable") << tr("Address")
         << tr("Barrel Height") << tr("Reserved Height"));
     for (int i = 0; i < WaterTower::MaxQuantity; i++) {
         table->insertRow(i);
@@ -268,8 +268,9 @@ QWidget *MainWindow::createWaterTowerOptions()
         id->setText(WaterTowerWidget::instance(i)->readableName(i));
         table->setItem(i, 0, id);
         table->setCellWidget(i, 1, WaterTowerWidget::instance(i)->getEnableWidget());
-        table->setCellWidget(i, 2, WaterTowerWidget::instance(i)->getBarrelHeightWidget());
-        table->setCellWidget(i, 3, WaterTowerWidget::instance(i)->getReservedHeightWidget());
+        table->setCellWidget(i, 2, WaterTowerWidget::instance(i)->getAddressWidget());
+        table->setCellWidget(i, 3, WaterTowerWidget::instance(i)->getBarrelHeightWidget());
+        table->setCellWidget(i, 4, WaterTowerWidget::instance(i)->getReservedHeightWidget());
     }
     layout->addWidget(table);
 

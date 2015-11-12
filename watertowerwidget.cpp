@@ -64,6 +64,11 @@ WaterTowerWidget::WaterTowerWidget(int id, QWidget *parent) :
     enableWidget = new QCheckBox(this);
     enableWidget->setChecked(waterTower->isEnabled());
 
+    addressWidget = new QSpinBox(this);
+    addressWidget->setRange(0, 15);
+    addressWidget->setValue(waterTower->getAddress());
+    connect(addressWidget, SIGNAL(valueChanged(int)), this, SLOT(addressChanged(int)));
+
     barrelHeightWidget = new QSpinBox(this);
     barrelHeightWidget->setRange(100, 500);
     barrelHeightWidget->setValue(waterTower->getHeight());
@@ -121,6 +126,11 @@ void WaterTowerWidget::readyForUse(bool checked)
 {
     waterTower->setEnable(checked);
     emit layoutChanged();
+}
+
+void WaterTowerWidget::addressChanged(int value)
+{
+    waterTower->setAddress(value);
 }
 
 void WaterTowerWidget::barrelHeightChanged(int value)

@@ -23,6 +23,11 @@ public:
         return qobject_cast<QWidget *>(enableWidget);
     }
 
+    QWidget *getAddressWidget()
+    {
+        return qobject_cast<QWidget *>(addressWidget);
+    }
+
     QWidget *getBarrelHeightWidget()
     {
         return qobject_cast<QWidget *>(barrelHeightWidget);
@@ -42,6 +47,7 @@ signals:
 public slots:
     void sampleIntervalChanged(int value);
     void readyForUse(bool checked);
+    void addressChanged(int value);
     void barrelHeightChanged(int value);
     void reservedHeightChanged(int value);
     void waterLevelChanged(quint32 centimetre, int progress);
@@ -59,6 +65,7 @@ private:
     WaterTower *waterTower;
 
     QCheckBox *enableWidget;
+    QSpinBox *addressWidget;
     QSpinBox *barrelHeightWidget;
     QSpinBox *reservedHeightWidget;
     static QSpinBox *sampleIntervalWidget;

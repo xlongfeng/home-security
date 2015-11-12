@@ -16,8 +16,13 @@ public:
         ReceiveTimeout
     };
 
-    MultiPointCom(quint8 id, QObject *parent = 0);
+    MultiPointCom(QObject *parent = 0);
     ~MultiPointCom();
+
+    void setAddress(quint8 addr)
+    {
+        address = addr;
+    }
 
     bool sendRequest(char protocol, const QByteArray &data);
 
@@ -177,7 +182,7 @@ private:
     int gets(const char *filename, char *str, int len);
 
 private:
-    quint8 identity;
+    quint8 address;
     QByteArray request;
     QByteArray response;
     static QMutex mutex;

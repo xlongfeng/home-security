@@ -64,9 +64,9 @@ static quint16 delay = 10;
 const char *irqGPIO = "/sys/devices/virtual/gpio/gpio134/value";
 const char *sdnGPIO = "/sys/devices/virtual/gpio/gpio135/value";
 
-MultiPointCom::MultiPointCom(quint8 id, QObject *parent) :
+MultiPointCom::MultiPointCom(QObject *parent) :
     QThread(parent),
-    identity(id)
+    address(0xFF)
 {
 
 }
@@ -82,7 +82,7 @@ bool MultiPointCom::sendRequest(char protocol, const QByteArray &data)
         return false;
 
     request.clear();
-    request.append(identity);
+    request.append(address);
     request.append(protocol);
     request.append(data);
 
@@ -113,8 +113,8 @@ void MultiPointCom::run()
     }
 
     if (sendPacket(request.size(), (quint8 *)request.data(), true)) {
-        quint8 id = response.at(0);
-        if (id == identity) {
+        quint8 addr = response.at(0);
+        if (addr == address) {
             lastConnectTime = QTime::currentTime();
             emit deviceConnected();
             emit responseReceived(response.at(1), response.mid(2));
@@ -135,9 +135,9 @@ void MultiPointCom::run()
     if (udp->waitForReadyRead(100)) {
         response.resize(udp->pendingDatagramSize());
         udp->readDatagram(response.data(), response.size());
-        quint8 id = response.at(0);
-        // qDebug() << identity << response.toHex();
-        if (id == identity) {
+        quint8 addr = response.at(0);
+        // qDebug() << address << response.toHex();
+        if (addr == address) {
             lastConnectTime = QTime::currentTime();
             emit deviceConnected();
             emit responseReceived(response.at(1), response.mid(2));
