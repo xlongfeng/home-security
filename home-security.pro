@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     multipointcom.cpp \
     notifypanel.cpp \
     babycare.cpp \
-    hal.cpp
+    hal.cpp \
+    datetimesettingsdialog.cpp
 
 HEADERS  += mainwindow.h \
     watertower.h \
@@ -32,9 +33,11 @@ HEADERS  += mainwindow.h \
     settings.h \
     notifypanel.h \
     babycare.h \
-    hal.h
+    hal.h \
+    datetimesettingsdialog.h
 
 FORMS    += mainwindow.ui \
-    watertowerwidget.ui
+    watertowerwidget.ui \
+    datetimesettingsdialog.ui
 
 TRANSLATIONS += skynet_zh.ts

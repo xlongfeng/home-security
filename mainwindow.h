@@ -50,11 +50,13 @@ public slots:
     void dateTimeUpdate();
     void brightnessChanged(int value);
     void volumeChanged(int value);
+    void dateTimeSettings();
 
 protected:
     virtual void keyPressEvent(QKeyEvent *event);
 
 private:
+    void dateTimeDisplayFormat();
     void createIcons();
     void insertWaterTowers(QGridLayout *layout);
     QWidget *createWaterTowers();

@@ -1,4 +1,5 @@
 #include <QLabel>
+#include <QPushButton>
 #include <QTabWidget>
 #include <QTableWidget>
 #include <QDateTimeEdit>
@@ -12,6 +13,7 @@
 #include "watertower.h"
 #include "watertowerwidget.h"
 #include "babycare.h"
+#include "datetimesettingsdialog.h"
 #include "mainwindow.h"
 #include "settings.h"
 #include "hal.h"
@@ -71,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent) :
     dateTime = new QDateTimeEdit(QDateTime::currentDateTime(), this);
     dateTime->setReadOnly(true);
     dateTime->setButtonSymbols(QAbstractSpinBox::NoButtons);
-    dateTime->setDisplayFormat("yyyy/MM/dd HH:mm:ss");
+    dateTimeDisplayFormat();
     ui->statusBar->addPermanentWidget(dateTime);
 
     QTimer *timer = new QTimer(this);
@@ -122,6 +124,13 @@ void MainWindow::volumeChanged(int value)
     Settings::instance()->setVolume(value);
 }
 
+void MainWindow::dateTimeSettings()
+{
+    DateTimeSettingsDialog dialog;
+    if(dialog.exec())
+        dateTimeDisplayFormat();
+}
+
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
@@ -155,6 +164,15 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         QMainWindow::keyPressEvent(event);
         break;
     }
+}
+
+void MainWindow::dateTimeDisplayFormat()
+{
+    bool timeApDisplayFormat = Settings::instance()->value("TimeApDisplayFormat", false).toBool();
+    if (timeApDisplayFormat)
+        dateTime->setDisplayFormat("yyyy/MM/dd HH:mm:ss AP");
+    else
+        dateTime->setDisplayFormat("yyyy/MM/dd HH:mm:ss");
 }
 
 void MainWindow::createIcons()
@@ -283,7 +301,8 @@ QWidget *MainWindow::createGeneralOptions()
     QHBoxLayout *layout = new QHBoxLayout(option);
 
     QFormLayout *leftLayout = new QFormLayout();
-    layout->addLayout(leftLayout);
+    layout->addLayout(leftLayout, 1);
+
     brightnessSilder = new QSlider(Qt::Horizontal);
     int maxBrightness = Hal::instance()->getMaxBrightness();
     int brightness = Settings::instance()->getBrightness();
@@ -293,13 +312,23 @@ QWidget *MainWindow::createGeneralOptions()
     connect(brightnessSilder, SIGNAL(valueChanged(int)), this, SLOT(brightnessChanged(int)));
     leftLayout->addRow(new QLabel(tr("Brightness")), brightnessSilder);
 
-    QFormLayout *rightLayout = new QFormLayout();
-    layout->addLayout(rightLayout);
     volumeSilder = new QSlider(Qt::Horizontal);
     volumeSilder->setRange(0, 100);
     volumeSilder->setValue(Settings::instance()->getVolume());
     connect(volumeSilder, SIGNAL(valueChanged(int)), this, SLOT(volumeChanged(int)));
-    rightLayout->addRow(new QLabel(tr("Volume")), volumeSilder);
+    leftLayout->addRow(new QLabel(tr("Volume")), volumeSilder);
+
+    QFrame *line = new QFrame(option);
+    line->setFrameShape(QFrame::VLine);
+    line->setFrameShadow(QFrame::Sunken);
+    layout->addWidget(line);
+
+    QFormLayout *rightLayout = new QFormLayout();
+    layout->addLayout(rightLayout, 1);
+
+    QPushButton *dateTimeSettingsButton = new QPushButton(tr("Date and Time Settings"));
+    connect(dateTimeSettingsButton, SIGNAL(pressed()), SLOT(dateTimeSettings()));
+    rightLayout->addWidget(dateTimeSettingsButton);
 
     return option;
 }
