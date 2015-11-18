@@ -20,7 +20,8 @@ public:
         Middle,
         High
     };
-    void addNotify(Priority priority, const QString &text, const QString &icon = "");
+    QString uuid() const;
+    void addNotify(const QString &uuid, Priority priority, const QString &text, const QString &icon = "");
     static NotifyPanel *instance();
 
 private slots:
@@ -41,11 +42,11 @@ private:
     QList<QStringList> middlePriorityNotifies;
     QList<QStringList> highPriorityNotifies;
 
-    QString uuid;
+    QString currentUuid;
     Priority priority;
 
     AvatarWidget *avatar;
-    QLabel *text;
+    QLabel *message;
 
     QMap<Priority, int> blinkIntervalMap;
 

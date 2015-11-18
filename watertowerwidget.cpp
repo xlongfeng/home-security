@@ -40,7 +40,8 @@ const char *disconnectStyle =
 
 WaterTowerWidget::WaterTowerWidget(int id, QWidget *parent) :
     QGroupBox(parent),
-    ui(new Ui::WaterTowerWidget)
+    ui(new Ui::WaterTowerWidget),
+    uuid(NotifyPanel::instance()->uuid())
 {
     ui->setupUi(this);
     ui->heightLabel->setVisible(false);
@@ -165,7 +166,7 @@ void WaterTowerWidget::deviceDisconnect()
 
 void WaterTowerWidget::highWaterLevelAlarm()
 {
-    NotifyPanel::instance()->addNotify(NotifyPanel::Middle,
+    NotifyPanel::instance()->addNotify(uuid, NotifyPanel::Middle,
             tr("%1: High water level alarm!").arg(readableName(waterTower->getIdentity())),
             QString("%1.png").arg(waterTower->getIdentity()));
     waterTower->stopAlarm();

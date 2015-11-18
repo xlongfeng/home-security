@@ -63,6 +63,7 @@ private:
 private:
     Ui::WaterTowerWidget *ui;
     WaterTower *waterTower;
+    QString uuid;
 
     QCheckBox *enableWidget;
     QSpinBox *addressWidget;
