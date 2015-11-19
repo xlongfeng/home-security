@@ -56,7 +56,7 @@ WaterTowerWidget::WaterTowerWidget(int id, QWidget *parent) :
 
     ui->heightLineEdit->setText(QString::number(waterTower->getHeight()));
     ui->levelLineEdit->setText(QString::number(waterTower->getWaterLevel()));
-    ui->avatarWidget->setPixmap(QPixmap(QString("%1.png").arg(id)));
+    ui->avatarWidget->setPixmap(QPixmap(QString("images/watertower-%1.png").arg(id)));
     ui->progressBar->setRange(0, 100);
     ui->progressBar->setValue(50);
     ui->progressBar->setTextVisible(false);

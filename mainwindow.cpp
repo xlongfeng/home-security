@@ -178,19 +178,19 @@ void MainWindow::dateTimeDisplayFormat()
 void MainWindow::createIcons()
 {
     QListWidgetItem *waterTowerButton = new QListWidgetItem(ui->listWidget);
-    waterTowerButton->setIcon(QIcon("watertower.png"));
+    waterTowerButton->setIcon(QIcon("images/watertower.png"));
     waterTowerButton->setText(tr("Water Tower"));
     waterTowerButton->setTextAlignment(Qt::AlignHCenter);
     waterTowerButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
     QListWidgetItem *babyCareButton = new QListWidgetItem(ui->listWidget);
-    babyCareButton->setIcon(QIcon("babycare.png"));
+    babyCareButton->setIcon(QIcon("images/babycare.png"));
     babyCareButton->setText(tr("Baby Care"));
     babyCareButton->setTextAlignment(Qt::AlignHCenter);
     babyCareButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
     QListWidgetItem *optionsButton = new QListWidgetItem(ui->listWidget);
-    optionsButton->setIcon(QIcon("options.png"));
+    optionsButton->setIcon(QIcon("images/options.png"));
     optionsButton->setText(tr("Options"));
     optionsButton->setTextAlignment(Qt::AlignHCenter);
     optionsButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
