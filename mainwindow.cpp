@@ -7,6 +7,7 @@
 #include <QFormLayout>
 #include <QSlider>
 #include <QDialog>
+#include <QDir>
 #include <QKeyEvent>
 #include <QDebug>
 
@@ -31,7 +32,7 @@ QuickDialog::QuickDialog(const QString &label, int value, int minimum, int maxim
     layout->addRow(label, slider);
 
     timer = new QTimer(this);
-    timer->start(3000);
+    timer->start(5000);
     connect(timer, SIGNAL(timeout()), this, SLOT(accept()));
 }
 
@@ -49,7 +50,8 @@ void QuickDialog::keyPressEvent(QKeyEvent *event)
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    oneMoreCycle(false)
 {
     ui->setupUi(this);
     ui->listWidget->setViewMode(QListView::IconMode);
@@ -81,6 +83,10 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->start(1000);
 
     Hal::instance()->setBrightness(Settings::instance()->getBrightness());
+
+    player = new QMediaPlayer(this);
+    player->setMedia(QUrl::fromLocalFile(QString("%1/audios/%2.mp3").arg(QDir::currentPath()).arg(QLatin1String("volume"))));
+    connect(player, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(playerStateChanged(QMediaPlayer::State)));
 }
 
 MainWindow::~MainWindow()
@@ -121,7 +127,23 @@ void MainWindow::brightnessChanged(int value)
 
 void MainWindow::volumeChanged(int value)
 {
+    value *= 10;
     Settings::instance()->setVolume(value);
+    player->setVolume(value);
+    if (player->state() == QMediaPlayer::StoppedState) {
+        oneMoreCycle = false;
+        player->play();
+    } else if (player->state() == QMediaPlayer::PlayingState) {
+        qint64 duration = player->duration();
+        qint64 position = player->position();
+        if (position * 3 < duration) {
+            oneMoreCycle = false;
+        } else {
+            oneMoreCycle = true;
+        }
+    } else {
+
+    }
 }
 
 void MainWindow::dateTimeSettings()
@@ -129,6 +151,14 @@ void MainWindow::dateTimeSettings()
     DateTimeSettingsDialog dialog;
     if(dialog.exec())
         dateTimeDisplayFormat();
+}
+
+void MainWindow::playerStateChanged(QMediaPlayer::State state)
+{
+    if (state == QMediaPlayer::StoppedState && oneMoreCycle == true) {
+        oneMoreCycle = false;
+        player->play();
+    }
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -148,7 +178,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
     case Qt::Key_F2:
     {
-        QuickDialog *dialog = new QuickDialog(tr("Volume"), Settings::instance()->getVolume(), 0, 100);
+        QuickDialog *dialog = new QuickDialog(tr("Volume"), Settings::instance()->getVolume() / 10, 1, 10);
         connect(dialog, SIGNAL(valueChanged(int)), volumeSilder, SLOT(setValue(int)));
         dialog->exec();
         delete dialog;
@@ -313,8 +343,8 @@ QWidget *MainWindow::createGeneralOptions()
     leftLayout->addRow(new QLabel(tr("Brightness")), brightnessSilder);
 
     volumeSilder = new QSlider(Qt::Horizontal);
-    volumeSilder->setRange(0, 100);
-    volumeSilder->setValue(Settings::instance()->getVolume());
+    volumeSilder->setRange(1, 10);
+    volumeSilder->setValue(Settings::instance()->getVolume() / 10);
     connect(volumeSilder, SIGNAL(valueChanged(int)), this, SLOT(volumeChanged(int)));
     leftLayout->addRow(new QLabel(tr("Volume")), volumeSilder);
 

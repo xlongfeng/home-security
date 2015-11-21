@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QMainWindow>
+#include <QMediaPlayer>
 
 namespace Ui {
 class MainWindow;
@@ -11,7 +12,6 @@ class MainWindow;
 class QDateTimeEdit;
 class QListWidgetItem;
 class QGridLayout;
-class QSoundEffect;
 class QSlider;
 class QTimer;
 
@@ -51,6 +51,7 @@ public slots:
     void brightnessChanged(int value);
     void volumeChanged(int value);
     void dateTimeSettings();
+    void playerStateChanged(QMediaPlayer::State state);
 
 protected:
     virtual void keyPressEvent(QKeyEvent *event);
@@ -70,6 +71,8 @@ private:
     QSlider *brightnessSilder;
     QSlider *volumeSilder;
     QDateTimeEdit *dateTime;
+    QMediaPlayer *player;
+    bool oneMoreCycle;
 };
 
 #endif // MAINWINDOW_H
