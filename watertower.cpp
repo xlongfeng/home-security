@@ -207,7 +207,8 @@ void WaterTower::readSample(quint32 microsecond)
         waterLevel = 0;
     if (waterLevel > height)
         waterLevel = height;
-    int progress = waterLevel * 100 / height;
+    int progress = waterLevel * 100 / (height - heightReserved);
+    progress = progress < 100 ? progress : 100;
 
     emit waterLevelChanged(waterLevel, progress);
     if (distance < heightReserved) {

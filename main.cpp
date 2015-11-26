@@ -4,6 +4,9 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    a.setStyleSheet("QDialog { background: cyan }");
+
     MainWindow w;
 #ifdef __arm__
     w.showFullScreen();

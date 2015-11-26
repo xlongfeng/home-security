@@ -166,11 +166,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     switch (event->key()) {
     case Qt::Key_F1:
     {
-        int maxBrightness = Hal::instance()->getMaxBrightness();
-        int brightness = Settings::instance()->getBrightness();
-        brightness = brightness < maxBrightness ? brightness : maxBrightness;
-        QuickDialog *dialog = new QuickDialog(tr("Brightness"), brightness, 1, maxBrightness);
-        connect(dialog, SIGNAL(valueChanged(int)), brightnessSilder, SLOT(setValue(int)));
+        QuickDialog *dialog = new QuickDialog(tr("Volume"), Settings::instance()->getVolume() / 10, 1, 10);
+        connect(dialog, SIGNAL(valueChanged(int)), volumeSilder, SLOT(setValue(int)));
         dialog->exec();
         delete dialog;
         event->accept();
@@ -178,8 +175,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
     case Qt::Key_F2:
     {
-        QuickDialog *dialog = new QuickDialog(tr("Volume"), Settings::instance()->getVolume() / 10, 1, 10);
-        connect(dialog, SIGNAL(valueChanged(int)), volumeSilder, SLOT(setValue(int)));
+        int maxBrightness = Hal::instance()->getMaxBrightness();
+        int brightness = Settings::instance()->getBrightness();
+        brightness = brightness < maxBrightness ? brightness : maxBrightness;
+        QuickDialog *dialog = new QuickDialog(tr("Brightness"), brightness, 1, maxBrightness);
+        connect(dialog, SIGNAL(valueChanged(int)), brightnessSilder, SLOT(setValue(int)));
         dialog->exec();
         delete dialog;
         event->accept();
