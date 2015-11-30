@@ -49,6 +49,7 @@ QMutex MultiPointCom::mutex;
 bool MultiPointCom::deviceInitialized = false;
 QTime MultiPointCom::lastConnectTime = QTime::currentTime();
 quint32 MultiPointCom::disconnectCount = 1;
+quint8 MultiPointCom::rssi = 0;
 int MultiPointCom::spi = -1;
 quint64 MultiPointCom::_freqCarrier = 443000000;
 quint8 MultiPointCom::_freqChannel = 0;
@@ -117,7 +118,7 @@ void MultiPointCom::run()
         if (addr == address) {
             lastConnectTime = QTime::currentTime();
             emit deviceConnected();
-            emit responseReceived(response.at(1), response.mid(2));
+            emit responseReceived(response.at(1), response.mid(2), rssi);
         }
     } else {
         emit deviceDisconnected();
@@ -140,7 +141,7 @@ void MultiPointCom::run()
         if (addr == address) {
             lastConnectTime = QTime::currentTime();
             emit deviceConnected();
-            emit responseReceived(response.at(1), response.mid(2));
+            emit responseReceived(response.at(1), response.mid(2), 88);
         }
     } else {
         emit deviceDisconnected();
@@ -162,7 +163,7 @@ void MultiPointCom::setFrequency(unsigned long baseFrequencyMhz)
         highBand = 1;
     }
 
-    double fPart = (baseFrequencyMhz / (10 * (highBand + 1))) - 24;
+    double fPart = (baseFrequencyMhz / (10.0 * (highBand + 1))) - 24;
 
     quint8 freqband = (quint8) fPart; // truncate the int
 
@@ -305,6 +306,7 @@ bool MultiPointCom::waitForPacket(int waitMs)
 
     while (QTime::currentTime() < timeout) {
         if (!isPacketReceived()) {
+            // rssi = readRegister(REG_RSSI);
             yieldCurrentThread();
         } else {
             return true;

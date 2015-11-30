@@ -27,7 +27,7 @@ public:
     bool sendRequest(char protocol, const QByteArray &data);
 
 signals:
-    void responseReceived(char protocol, const QByteArray &data);
+    void responseReceived(char protocol, const QByteArray &data, int rssi);
     void deviceConnected();
     void deviceDisconnected();
     void error(Error error);
@@ -189,6 +189,7 @@ private:
     static bool deviceInitialized;
     static QTime lastConnectTime;
     static quint32 disconnectCount;
+    static quint8 rssi;
     static int spi;
     static quint64 _freqCarrier;
     static quint8 _freqChannel;

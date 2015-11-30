@@ -26,7 +26,7 @@ WaterTower::WaterTower(quint8 id, QObject *parent) :
     isAlarm(false)
 {
     com->setAddress(WaterTowerIdentityBase + getAddress());
-    connect(com, SIGNAL(responseReceived(char,QByteArray)), this, SLOT(responseReceived(char,QByteArray)));
+    connect(com, SIGNAL(responseReceived(char,QByteArray,int)), this, SLOT(responseReceived(char,QByteArray,int)));
     connect(com, SIGNAL(deviceConnected()), this, SIGNAL(deviceConnected()));
     connect(com, SIGNAL(deviceDisconnected()), this, SIGNAL(deviceDisconnected()));
     connect(com, SIGNAL(deviceConnected()), this, SLOT(deviceConnect()));
@@ -35,6 +35,7 @@ WaterTower::WaterTower(quint8 id, QObject *parent) :
     getSampleInterval();
     getHeight();
     getHeightReserved();
+    virtualHeight = height - heightReserved;
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(trigger()));
@@ -85,34 +86,38 @@ void WaterTower::setEnable(bool enable)
     }
 }
 
-void WaterTower::setHeight(qint32 centimetre)
+void WaterTower::setHeight(int centimetre)
 {
     height = centimetre;
+    virtualHeight = height - heightReserved;
+    emit waterLevelRangeChanged(0, virtualHeight);
     Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
     Settings::instance()->setValue("height", height);
     Settings::instance()->endGroup();
 }
 
-qint32 WaterTower::getHeight()
+int WaterTower::getHeight()
 {
     Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
-    height = Settings::instance()->value("height", 200).toUInt();
+    height = Settings::instance()->value("height", 200).toInt();
     Settings::instance()->endGroup();
     return height;
 }
 
-void WaterTower::setHeightReserved(qint32 centimetre)
+void WaterTower::setHeightReserved(int centimetre)
 {
     heightReserved = centimetre;
+    virtualHeight = height - heightReserved;
+    emit waterLevelRangeChanged(0, virtualHeight);
     Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
     Settings::instance()->setValue("height-reserved", heightReserved);
     Settings::instance()->endGroup();
 }
 
-qint32 WaterTower::getHeightReserved()
+int WaterTower::getHeightReserved()
 {
     Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
-    heightReserved = Settings::instance()->value("height-reserved", 10).toUInt();
+    heightReserved = Settings::instance()->value("height-reserved", 10).toInt();
     Settings::instance()->endGroup();
     return heightReserved;
 }
@@ -147,7 +152,7 @@ WaterTower *WaterTower::instance(int identity)
     return wt;
 }
 
-void WaterTower::responseReceived(char protocol, const QByteArray &data)
+void WaterTower::responseReceived(char protocol, const QByteArray &data, int rssi)
 {
     Q_UNUSED(protocol); /* always zero */
 
@@ -164,7 +169,26 @@ void WaterTower::responseReceived(char protocol, const QByteArray &data)
     microsecond <<= 8;
     microsecond |= (quint8)data[0];
 
-    readSample(microsecond);
+    if (microsecond > 60000)
+        microsecond = 60000;
+
+    int distance = (microsecond * AcousticVelocity) / (10000 * 2);
+    waterLevel = height - distance;
+
+    if (waterLevel < 0)
+        waterLevel = 0;
+    if (waterLevel > virtualHeight)
+        waterLevel = virtualHeight;
+
+    emit waterLevelChanged(waterLevel, rssi);
+    if (distance < heightReserved) {
+        if (isConnected && !isAlarm) {
+            isAlarm = true;
+            emit highWaterLevelAlarm();
+        }
+    } else {
+        isAlarm = false;
+    }
 }
 
 void WaterTower::deviceConnect()
@@ -193,30 +217,4 @@ void WaterTower::pauseAlarm()
 void WaterTower::stopAlarm()
 {
 
-}
-
-void WaterTower::readSample(quint32 microsecond)
-{
-    if (microsecond > 60000)
-        microsecond = 60000;
-
-    qint32 distance = (microsecond * AcousticVelocity) / (10000 * 2);
-    waterLevel = height - distance;
-
-    if (waterLevel < 0)
-        waterLevel = 0;
-    if (waterLevel > height)
-        waterLevel = height;
-    int progress = waterLevel * 100 / (height - heightReserved);
-    progress = progress < 100 ? progress : 100;
-
-    emit waterLevelChanged(waterLevel, progress);
-    if (distance < heightReserved) {
-        if (isConnected && !isAlarm) {
-            isAlarm = true;
-            emit highWaterLevelAlarm();
-        }
-    } else {
-        isAlarm = false;
-    }
 }

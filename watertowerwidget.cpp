@@ -44,23 +44,20 @@ WaterTowerWidget::WaterTowerWidget(int id, QWidget *parent) :
     uuid(NotifyPanel::instance()->uuid())
 {
     ui->setupUi(this);
-    ui->heightLabel->setVisible(false);
-    ui->heightLineEdit->setVisible(false);
 
     setTitle(ReadableName[id]);
     waterTower = WaterTower::instance(id);
-    connect(waterTower, SIGNAL(waterLevelChanged(quint32, int)), this, SLOT(waterLevelChanged(quint32, int)));
+    connect(waterTower, SIGNAL(waterLevelChanged(int,int)), this, SLOT(waterLevelChanged(int,int)));
     connect(waterTower, SIGNAL(deviceConnected()), this, SLOT(deviceConnect()));
     connect(waterTower, SIGNAL(deviceDisconnected()), this, SLOT(deviceDisconnect()));
     connect(waterTower, SIGNAL(highWaterLevelAlarm()), this, SLOT(highWaterLevelAlarm()));
 
-    ui->heightLineEdit->setText(QString::number(waterTower->getHeight()));
-    ui->levelLineEdit->setText(QString::number(waterTower->getWaterLevel()));
+    waterTower->getWaterLevel();
     ui->avatarWidget->setPixmap(QPixmap(QString("images/watertower-%1.png").arg(id)));
-    ui->progressBar->setRange(0, 100);
-    ui->progressBar->setValue(50);
-    ui->progressBar->setTextVisible(false);
-    ui->progressBar->setStyleSheet(disconnectStyle);
+    ui->progressBar->setRange(waterTower->waterLevelMinimum(), waterTower->waterLevelMaxminum());
+    ui->progressBar->setFormat("%v");
+    deviceDisconnect();
+    connect(waterTower, SIGNAL(waterLevelRangeChanged(int,int)), ui->progressBar, SLOT(setRange(int,int)));
 
     enableWidget = new QCheckBox(this);
     enableWidget->setChecked(waterTower->isEnabled());
@@ -137,7 +134,6 @@ void WaterTowerWidget::addressChanged(int value)
 void WaterTowerWidget::barrelHeightChanged(int value)
 {
     waterTower->setHeight(value);
-    ui->heightLineEdit->setText(QString::number(value));
 }
 
 void WaterTowerWidget::reservedHeightChanged(int value)
@@ -145,12 +141,17 @@ void WaterTowerWidget::reservedHeightChanged(int value)
     waterTower->setHeightReserved(value);
 }
 
-void WaterTowerWidget::waterLevelChanged(quint32 centimetre, int progress)
+void WaterTowerWidget::waterLevelChanged(int centimetre, int rssi)
 {
-    int color = ((0xff * progress / 100) << 16) + (0xff * (100 - progress) / 100);
+    int maximum = ui->progressBar->maximum();
+    int color = ((0xff * centimetre / maximum) << 16) + (0xff * (maximum - centimetre) / maximum);
     ui->progressBar->setStyleSheet(QString(connectStyle).arg(color, 6, 16, QLatin1Char('0')));
-    ui->levelLineEdit->setText(QString::number(centimetre));
-    ui->progressBar->setValue(progress);
+    ui->progressBar->setValue(centimetre);
+    // ui->progressBar->setTextVisible(true);
+    ui->waterLevelLabel->setVisible(true);
+    ui->waterLevelLabel->setNum(centimetre);
+    ui->rssiLabel->setVisible(true);
+    ui->rssiLabel->setNum(rssi);
 }
 
 void WaterTowerWidget::deviceConnect()
@@ -160,8 +161,11 @@ void WaterTowerWidget::deviceConnect()
 
 void WaterTowerWidget::deviceDisconnect()
 {
-    ui->progressBar->setValue(50);
     ui->progressBar->setStyleSheet(disconnectStyle);
+    ui->progressBar->setValue((waterTower->waterLevelMinimum() + waterTower->waterLevelMaxminum()) / 2);
+    ui->progressBar->setTextVisible(false);
+    ui->waterLevelLabel->setVisible(false);
+    ui->rssiLabel->setVisible(false);
 }
 
 void WaterTowerWidget::highWaterLevelAlarm()

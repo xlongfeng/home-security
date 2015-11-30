@@ -24,12 +24,22 @@ public:
     bool isEnabled() const;
     void setEnable(bool enable);
 
-    void setHeight(qint32 centimetre);
-    qint32 getHeight();
-    void setHeightReserved(qint32 centimetre);
-    qint32 getHeightReserved();
+    void setHeight(int centimetre);
+    int getHeight();
+    void setHeightReserved(int centimetre);
+    int getHeightReserved();
 
-    qint32 getWaterLevel() const
+    int waterLevelMinimum() const
+    {
+        return 0;
+    }
+
+    int waterLevelMaxminum() const
+    {
+        return virtualHeight;
+    }
+
+    int getWaterLevel() const
     {
         return waterLevel;
     }
@@ -42,11 +52,12 @@ public:
 signals:
     void deviceConnected();
     void deviceDisconnected();
-    void waterLevelChanged(quint32 centimetre, int progress);
+    void waterLevelRangeChanged(int minimum, int maximum);
+    void waterLevelChanged(int centimetre, int rssi);
     void highWaterLevelAlarm();
 
 public slots:
-    void responseReceived(char protocol, const QByteArray &data);
+    void responseReceived(char protocol, const QByteArray &data, int rssi);
     void deviceConnect();
     void deviceDisconnect();
     void trigger();
@@ -57,8 +68,6 @@ private:
     Q_DISABLE_COPY(WaterTower)
     explicit WaterTower(quint8 id, QObject *parent = 0);
 
-    void readSample(quint32 microsecond);
-
 private:
     quint8 identity;
     QTimer *timer;
@@ -67,9 +76,10 @@ private:
 
     bool enabled;
     /*  measured in the unit of "centimetre"  */
-    qint32 height;
-    qint32 heightReserved;
-    qint32 waterLevel;
+    int height;
+    int heightReserved;
+    int virtualHeight;
+    int waterLevel;
 
     bool isConnected;
     bool isAlarm;

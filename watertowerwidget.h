@@ -50,7 +50,7 @@ public slots:
     void addressChanged(int value);
     void barrelHeightChanged(int value);
     void reservedHeightChanged(int value);
-    void waterLevelChanged(quint32 centimetre, int progress);
+    void waterLevelChanged(int centimetre, int rssi);
     void deviceConnect();
     void deviceDisconnect();
     void highWaterLevelAlarm();
