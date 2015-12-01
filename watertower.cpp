@@ -26,7 +26,7 @@ WaterTower::WaterTower(quint8 id, QObject *parent) :
     isAlarm(false)
 {
     com->setAddress(WaterTowerIdentityBase + getAddress());
-    connect(com, SIGNAL(responseReceived(char,QByteArray,int)), this, SLOT(responseReceived(char,QByteArray,int)));
+    connect(com, SIGNAL(responseReceived(char,QByteArray)), this, SLOT(responseReceived(char,QByteArray)));
     connect(com, SIGNAL(deviceConnected()), this, SIGNAL(deviceConnected()));
     connect(com, SIGNAL(deviceDisconnected()), this, SIGNAL(deviceDisconnected()));
     connect(com, SIGNAL(deviceConnected()), this, SLOT(deviceConnect()));
@@ -152,7 +152,7 @@ WaterTower *WaterTower::instance(int identity)
     return wt;
 }
 
-void WaterTower::responseReceived(char protocol, const QByteArray &data, int rssi)
+void WaterTower::responseReceived(char protocol, const QByteArray &data)
 {
     Q_UNUSED(protocol); /* always zero */
 
@@ -180,7 +180,7 @@ void WaterTower::responseReceived(char protocol, const QByteArray &data, int rss
     if (waterLevel > virtualHeight)
         waterLevel = virtualHeight;
 
-    emit waterLevelChanged(waterLevel, rssi);
+    emit waterLevelChanged(waterLevel);
     if (distance < heightReserved) {
         if (isConnected && !isAlarm) {
             isAlarm = true;

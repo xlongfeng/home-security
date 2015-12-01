@@ -47,7 +47,7 @@ WaterTowerWidget::WaterTowerWidget(int id, QWidget *parent) :
 
     setTitle(ReadableName[id]);
     waterTower = WaterTower::instance(id);
-    connect(waterTower, SIGNAL(waterLevelChanged(int,int)), this, SLOT(waterLevelChanged(int,int)));
+    connect(waterTower, SIGNAL(waterLevelChanged(int)), this, SLOT(waterLevelChanged(int)));
     connect(waterTower, SIGNAL(deviceConnected()), this, SLOT(deviceConnect()));
     connect(waterTower, SIGNAL(deviceDisconnected()), this, SLOT(deviceDisconnect()));
     connect(waterTower, SIGNAL(highWaterLevelAlarm()), this, SLOT(highWaterLevelAlarm()));
@@ -141,7 +141,7 @@ void WaterTowerWidget::reservedHeightChanged(int value)
     waterTower->setHeightReserved(value);
 }
 
-void WaterTowerWidget::waterLevelChanged(int centimetre, int rssi)
+void WaterTowerWidget::waterLevelChanged(int centimetre)
 {
     int maximum = ui->progressBar->maximum();
     int color = ((0xff * centimetre / maximum) << 16) + (0xff * (maximum - centimetre) / maximum);
@@ -150,8 +150,6 @@ void WaterTowerWidget::waterLevelChanged(int centimetre, int rssi)
     // ui->progressBar->setTextVisible(true);
     ui->waterLevelLabel->setVisible(true);
     ui->waterLevelLabel->setNum(centimetre);
-    ui->rssiLabel->setVisible(true);
-    ui->rssiLabel->setNum(rssi);
 }
 
 void WaterTowerWidget::deviceConnect()
@@ -165,7 +163,6 @@ void WaterTowerWidget::deviceDisconnect()
     ui->progressBar->setValue((waterTower->waterLevelMinimum() + waterTower->waterLevelMaxminum()) / 2);
     ui->progressBar->setTextVisible(false);
     ui->waterLevelLabel->setVisible(false);
-    ui->rssiLabel->setVisible(false);
 }
 
 void WaterTowerWidget::highWaterLevelAlarm()

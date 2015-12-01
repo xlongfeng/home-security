@@ -53,11 +53,11 @@ signals:
     void deviceConnected();
     void deviceDisconnected();
     void waterLevelRangeChanged(int minimum, int maximum);
-    void waterLevelChanged(int centimetre, int rssi);
+    void waterLevelChanged(int centimetre);
     void highWaterLevelAlarm();
 
 public slots:
-    void responseReceived(char protocol, const QByteArray &data, int rssi);
+    void responseReceived(char protocol, const QByteArray &data);
     void deviceConnect();
     void deviceDisconnect();
     void trigger();
