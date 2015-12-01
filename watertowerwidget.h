@@ -23,6 +23,11 @@ public:
         return qobject_cast<QWidget *>(enableWidget);
     }
 
+    QWidget *getAlarmEnableWidget()
+    {
+        return qobject_cast<QWidget *>(enableAlarmWidget);
+    }
+
     QWidget *getAddressWidget()
     {
         return qobject_cast<QWidget *>(addressWidget);
@@ -47,6 +52,7 @@ signals:
 public slots:
     void sampleIntervalChanged(int value);
     void readyForUse(bool checked);
+    void enableAlarm(bool checked);
     void addressChanged(int value);
     void barrelHeightChanged(int value);
     void reservedHeightChanged(int value);
@@ -66,6 +72,7 @@ private:
     QString uuid;
 
     QCheckBox *enableWidget;
+    QCheckBox *enableAlarmWidget;
     QSpinBox *addressWidget;
     QSpinBox *barrelHeightWidget;
     QSpinBox *reservedHeightWidget;

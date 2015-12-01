@@ -24,6 +24,9 @@ public:
     bool isEnabled() const;
     void setEnable(bool enable);
 
+    bool isAlarmEnabled() const;
+    void setAlarmEnable(bool enable);
+
     void setHeight(int centimetre);
     int getHeight();
     void setHeightReserved(int centimetre);
@@ -75,6 +78,7 @@ private:
     MultiPointCom *com;
 
     bool enabled;
+    bool alarmEnabled;
     /*  measured in the unit of "centimetre"  */
     int height;
     int heightReserved;

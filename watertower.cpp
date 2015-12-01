@@ -18,7 +18,6 @@ WaterTower::WaterTower(quint8 id, QObject *parent) :
     QObject(parent),
     identity(id),
     com(new MultiPointCom()),
-    enabled(false),
     height(200),
     heightReserved(10),
     waterLevel(0),
@@ -45,6 +44,8 @@ WaterTower::WaterTower(quint8 id, QObject *parent) :
     if (enabled) {
         timer->start(3 * 1000);
     }
+
+    alarmEnabled = isAlarmEnabled();
 }
 
 quint8 WaterTower::getAddress()
@@ -79,10 +80,30 @@ void WaterTower::setEnable(bool enable)
         enabled = enable;
         timer->start(3 * 1000);
         Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
-        Settings::instance()->setValue("enable", enabled);
+        Settings::instance()->setValue("enable", enable);
         Settings::instance()->endGroup();
     } else {
         timer->stop();
+    }
+}
+
+bool WaterTower::isAlarmEnabled() const
+{
+    bool enable;
+    Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
+    enable = Settings::instance()->value("alarm", true).toBool();
+    Settings::instance()->endGroup();
+    return enable;
+}
+
+void WaterTower::setAlarmEnable(bool enable)
+{
+    if (alarmEnabled != enable) {
+        alarmEnabled = enable;
+        Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
+        Settings::instance()->setValue("alarm", enable);
+        Settings::instance()->endGroup();
+        qDebug() << identity << enable;
     }
 }
 
@@ -181,7 +202,7 @@ void WaterTower::responseReceived(char protocol, const QByteArray &data)
         waterLevel = virtualHeight;
 
     emit waterLevelChanged(waterLevel);
-    if (distance < heightReserved) {
+    if ((distance < heightReserved) && alarmEnabled) {
         if (isConnected && !isAlarm) {
             isAlarm = true;
             emit highWaterLevelAlarm();
