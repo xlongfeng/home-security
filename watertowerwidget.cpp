@@ -9,14 +9,6 @@
 QSpinBox *WaterTowerWidget::sampleIntervalWidget = 0;
 QMap<int, WaterTowerWidget*> WaterTowerWidget::instanceMap;
 
-static QStringList ReadableName = QStringList()
-                            << QObject::tr("Ground floor")
-                            << QObject::tr("Second floor")
-                            << QObject::tr("Seaside")
-                            << QObject::tr("Well")
-                            << QObject::tr("Boat")
-                            << QObject::tr("Null");
-
 const char *connectStyle =
     "QProgressBar {"
         "border: 2px solid grey;"
@@ -45,7 +37,7 @@ WaterTowerWidget::WaterTowerWidget(int id, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    setTitle(ReadableName[id]);
+    setTitle(readableName(id));
     waterTower = WaterTower::instance(id);
     connect(waterTower, SIGNAL(waterLevelChanged(int)), this, SLOT(waterLevelChanged(int)));
     connect(waterTower, SIGNAL(deviceConnected()), this, SLOT(deviceConnect()));
@@ -88,10 +80,22 @@ WaterTowerWidget::WaterTowerWidget(int id, QWidget *parent) :
 
 QString WaterTowerWidget::readableName(int id)
 {
-    if (id < WaterTower::MaxQuantity) {
-        return ReadableName[id];
-    } else
+    switch(id) {
+    case 0:
+        return tr("Ground floor");
+    case 1:
+        return tr("Second floor");
+    case 2:
+        return tr("Seaside");
+    case 3:
+        return tr("Well");
+    case 4:
+        return tr("Boat");
+    case 5:
+        return tr("Null");
+    default:
         return QString::number(id);
+    }
 }
 
 /* static */

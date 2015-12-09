@@ -1,5 +1,7 @@
 #include <QApplication>
 #include <QTranslator>
+#include <QMessageBox>
+#include <QDebug>
 
 #include "mainwindow.h"
 
@@ -7,9 +9,10 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    QTranslator translator;
-    translator.load("skynet_zh_CN");
-    a.installTranslator(&translator);
+    QTranslator *translator = new QTranslator(&a);
+    translator->load("skynet_zh_CN");
+    //translator->load("qt_zh_CN");
+    a.installTranslator(translator);
 
     a.setStyleSheet("QDialog { background: cyan }");
 
