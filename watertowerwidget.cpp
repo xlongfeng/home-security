@@ -177,7 +177,7 @@ void WaterTowerWidget::deviceDisconnect()
 void WaterTowerWidget::highWaterLevelAlarm()
 {
     NotifyPanel::instance()->addNotify(uuid, NotifyPanel::Middle,
-            tr("%1: High water level alarm!").arg(readableName(waterTower->getIdentity())),
+            tr("%1: High water level!").arg(readableName(waterTower->getIdentity())),
             QString("%1.png").arg(waterTower->getIdentity()));
     waterTower->stopAlarm();
 }

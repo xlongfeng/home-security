@@ -40,4 +40,4 @@ FORMS    += mainwindow.ui \
     watertowerwidget.ui \
     datetimesettingsdialog.ui
 
-TRANSLATIONS += skynet_zh.ts
+TRANSLATIONS += skynet_zh_CN.ts
