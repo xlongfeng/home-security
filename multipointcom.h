@@ -39,6 +39,7 @@ private:
     quint8 address;
     QByteArray request;
     QByteArray response;
+    int disconnect;
     static QMutex mutex;
     static bool deviceInitialized;
     static QTime lastConnectTime;

@@ -60,7 +60,8 @@ const char *sdnGPIO = "/sys/devices/virtual/gpio/gpio135/value";
 
 MultiPointCom::MultiPointCom(QObject *parent) :
     QThread(parent),
-    address(0x7F)
+    address(0x7F),
+    disconnect(0)
 {
 
     if (!deviceInitialized) {
@@ -126,11 +127,16 @@ void MultiPointCom::run()
         quint8 addr = response.at(0);
         if (addr == address) {
             lastConnectTime = QTime::currentTime();
+            disconnect = 0;
             emit deviceConnected();
             emit responseReceived(response.at(1), QByteArray(response.data() + 2, len - 2));
         }
     } else {
-        emit deviceDisconnected();
+        disconnect++;
+        if (disconnect > 3) {
+            disconnect = 0;
+            emit deviceDisconnected();
+        }
     }
 #else
     QUdpSocket *udp = new QUdpSocket();
@@ -142,11 +148,16 @@ void MultiPointCom::run()
         quint8 addr = response.at(0);
         if (addr == address) {
             lastConnectTime = QTime::currentTime();
+            disconnect = 0;
             emit deviceConnected();
             emit responseReceived(response.at(1), response.mid(2));
         }
     } else {
-        emit deviceDisconnected();
+        disconnect++;
+        if (disconnect > 3) {
+            disconnect = 0;
+            emit deviceDisconnected();
+        }
     }
     delete udp;
 #endif
