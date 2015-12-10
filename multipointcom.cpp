@@ -18,8 +18,10 @@
 #include <math.h>
 #include <fcntl.h>
 #include <unistd.h>
+#ifdef __arm__
 #include <sys/ioctl.h>
 #include <linux/types.h>
+#endif
 
 #include <QFile>
 #include <QTime>
@@ -29,6 +31,7 @@
 #include "multipointcom.h"
 
 
+#ifdef __arm__
 struct si4432_ioc_transfer {
     __u64		tx_buf;
     __u64		rx_buf;
@@ -47,13 +50,14 @@ struct si4432_ioc_transfer {
 
 #define SI4432_IOC_RESET    _IOR(SI4432_IOC_MAGIC, 1, __u8)
 
+static const char *si4432Dev = "/dev/si4432";
+#endif
+
 QMutex MultiPointCom::mutex;
 bool MultiPointCom::deviceInitialized = false;
 QTime MultiPointCom::lastConnectTime = QTime::currentTime();
 quint32 MultiPointCom::disconnectCount = 1;
 int MultiPointCom::device = -1;
-
-static const char *si4432Dev = "/dev/si4432";
 
 const char *irqGPIO = "/sys/devices/virtual/gpio/gpio134/value";
 const char *sdnGPIO = "/sys/devices/virtual/gpio/gpio135/value";
@@ -142,7 +146,7 @@ void MultiPointCom::run()
     QUdpSocket *udp = new QUdpSocket();
     udp->writeDatagram(request, QHostAddress::LocalHost, 19999);
 
-    if (udp->waitForReadyRead(100)) {
+    if (udp->waitForReadyRead(100) && (udp->pendingDatagramSize() > 0)) {
         response.resize(udp->pendingDatagramSize());
         udp->readDatagram(response.data(), response.size());
         quint8 addr = response.at(0);
