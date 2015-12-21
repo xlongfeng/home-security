@@ -103,7 +103,6 @@ void WaterTower::setAlarmEnable(bool enable)
         Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
         Settings::instance()->setValue("alarm", enable);
         Settings::instance()->endGroup();
-        qDebug() << identity << enable;
     }
 }
 
