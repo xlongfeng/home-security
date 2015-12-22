@@ -1,3 +1,4 @@
+#include <QApplication>
 #include "settings.h"
 
 Settings *Settings::self = 0;
@@ -10,7 +11,7 @@ Settings::Settings(const QString &fileName, Format format, QObject *parent) :
 Settings *Settings::instance()
 {
     if (!self)
-        self = new Settings("config.ini");
+        self = new Settings(qApp->applicationDirPath() + "/config.ini");
     return self;
 }
 

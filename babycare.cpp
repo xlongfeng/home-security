@@ -1,4 +1,4 @@
-
+#include <QApplication>
 #include <QGraphicsPixmapItem>
 #include <QResizeEvent>
 #include <QDebug>
@@ -14,7 +14,7 @@ BabyCare::BabyCare(QWidget *parent) :
     sense = new QGraphicsScene(this);
     setScene(sense);
 
-    map = QPixmap("home.png");
+    map = QPixmap(qApp->applicationDirPath() + "/images/home.png");
     mapItem = sense->addPixmap(QPixmap(1, 1));
     sense->addText("hello world");
 }

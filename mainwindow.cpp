@@ -85,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
     Hal::instance()->setBrightness(Settings::instance()->getBrightness());
 
     player = new QMediaPlayer(this);
-    player->setMedia(QUrl::fromLocalFile(QString("%1/audios/%2.mp3").arg(QDir::currentPath()).arg(QLatin1String("volume"))));
+    player->setMedia(QUrl::fromLocalFile(QString("%1/audios/%2.mp3").arg(qApp->applicationDirPath()).arg(QLatin1String("volume"))));
     connect(player, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(playerStateChanged(QMediaPlayer::State)));
 }
 
@@ -208,19 +208,19 @@ void MainWindow::dateTimeDisplayFormat()
 void MainWindow::createIcons()
 {
     QListWidgetItem *waterTowerButton = new QListWidgetItem(ui->listWidget);
-    waterTowerButton->setIcon(QIcon("images/watertower.png"));
+    waterTowerButton->setIcon(QIcon(qApp->applicationDirPath() + "/images/watertower.png"));
     waterTowerButton->setText(tr("Water Tower"));
     waterTowerButton->setTextAlignment(Qt::AlignHCenter);
     waterTowerButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
     QListWidgetItem *babyCareButton = new QListWidgetItem(ui->listWidget);
-    babyCareButton->setIcon(QIcon("images/babycare.png"));
+    babyCareButton->setIcon(QIcon(qApp->applicationDirPath() + "/images/babycare.png"));
     babyCareButton->setText(tr("Baby Care"));
     babyCareButton->setTextAlignment(Qt::AlignHCenter);
     babyCareButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
     QListWidgetItem *optionsButton = new QListWidgetItem(ui->listWidget);
-    optionsButton->setIcon(QIcon("images/options.png"));
+    optionsButton->setIcon(QIcon(qApp->applicationDirPath() + "/images/options.png"));
     optionsButton->setText(tr("Options"));
     optionsButton->setTextAlignment(Qt::AlignHCenter);
     optionsButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);

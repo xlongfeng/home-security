@@ -1,3 +1,4 @@
+#include <QApplication>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QSpacerItem>
@@ -48,9 +49,9 @@ NotifyPanel::NotifyPanel(QWidget *parent) :
 
     ledsOff();
 
-    mediaMap[Low] = QString("%1/audios/%2.mp3").arg(QDir::currentPath()).arg(QLatin1String("low"));
-    mediaMap[Middle] = QString("%1/audios/%2.mp3").arg(QDir::currentPath()).arg(QLatin1String("middle"));
-    mediaMap[High] = QString("%1/audios/%2.mp3").arg(QDir::currentPath()).arg(QLatin1String("high"));
+    mediaMap[Low] = QString("%1/audios/%2.mp3").arg(qApp->applicationDirPath()).arg(QLatin1String("low"));
+    mediaMap[Middle] = QString("%1/audios/%2.mp3").arg(qApp->applicationDirPath()).arg(QLatin1String("middle"));
+    mediaMap[High] = QString("%1/audios/%2.mp3").arg(qApp->applicationDirPath()).arg(QLatin1String("high"));
 
     player = new QMediaPlayer(this);
     player->setVolume(Settings::instance()->getVolume());

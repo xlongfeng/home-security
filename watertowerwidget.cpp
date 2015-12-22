@@ -45,7 +45,7 @@ WaterTowerWidget::WaterTowerWidget(int id, QWidget *parent) :
     connect(waterTower, SIGNAL(highWaterLevelAlarm()), this, SLOT(highWaterLevelAlarm()));
 
     waterTower->getWaterLevel();
-    ui->avatarWidget->setPixmap(QPixmap(QString("images/watertower-%1.png").arg(id)));
+    ui->avatarWidget->setPixmap(QPixmap(QString(qApp->applicationDirPath() + "/images/watertower-%1.png").arg(id)));
     ui->progressBar->setRange(waterTower->waterLevelMinimum(), waterTower->waterLevelMaxminum());
     ui->progressBar->setFormat("%v");
     deviceDisconnect();
@@ -182,6 +182,6 @@ void WaterTowerWidget::highWaterLevelAlarm()
 {
     NotifyPanel::instance()->addNotify(uuid, NotifyPanel::Middle,
             tr("%1: High water level!").arg(readableName(waterTower->getIdentity())),
-            QString("%1.png").arg(waterTower->getIdentity()));
+            QString(qApp->applicationDirPath() + "/images/watertower-%1.png").arg(waterTower->getIdentity()));
     waterTower->stopAlarm();
 }
