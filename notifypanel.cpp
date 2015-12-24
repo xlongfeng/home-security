@@ -94,8 +94,8 @@ void NotifyPanel::addNotify(const QString &uuid, Priority priority, const QStrin
             notifies->removeOne(notify);
         }
         notifies->append(QStringList() << uuid << text << icon);
-        nextNotify();
         Hal::instance()->powerOn();
+        nextNotify();
     }
 }
 
