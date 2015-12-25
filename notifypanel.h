@@ -5,6 +5,7 @@
 #include <QStringList>
 #include <QMap>
 #include <QMediaPlayer>
+#include <QMediaPlaylist>
 
 class QLabel;
 class QTimer;
@@ -18,7 +19,8 @@ public:
     enum Priority {
         Low,
         Middle,
-        High
+        High,
+        None
     };
     QString uuid() const;
     void addNotify(const QString &uuid, Priority priority, const QString &text, const QString &icon = "");
@@ -27,7 +29,6 @@ public:
 private slots:
     void confirm();
     void blink();
-    void playerStateChanged(QMediaPlayer::State state);
 
 private:
     explicit NotifyPanel(QWidget *parent = 0);
@@ -43,7 +44,7 @@ private:
     QList<QStringList> highPriorityNotifies;
 
     QString currentUuid;
-    Priority priority;
+    Priority currentPriority;
 
     AvatarWidget *avatar;
     QLabel *message;
@@ -55,6 +56,7 @@ private:
 
     QMap<Priority, QString> mediaMap;
     QMediaPlayer *player;
+    QMediaPlaylist *playlist;
 };
 
 #endif // NOTIFYPANEL_H

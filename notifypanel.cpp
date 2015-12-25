@@ -19,7 +19,8 @@
 NotifyPanel *NotifyPanel::self = 0;
 
 NotifyPanel::NotifyPanel(QWidget *parent) :
-    QDialog(parent)
+    QDialog(parent),
+    currentPriority(None)
 {
     QVBoxLayout *vLayout = new QVBoxLayout(this);
 
@@ -56,7 +57,14 @@ NotifyPanel::NotifyPanel(QWidget *parent) :
     player = new QMediaPlayer(this);
     player->setVolume(Settings::instance()->getVolume());
     connect(Settings::instance(), SIGNAL(volumeChanged(int)), player, SLOT(setVolume(int)));
-    connect(player, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(playerStateChanged(QMediaPlayer::State)));
+
+    playlist = new QMediaPlaylist(player);
+    playlist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
+    playlist->addMedia(QUrl::fromLocalFile(mediaMap[Low]));
+    playlist->addMedia(QUrl::fromLocalFile(mediaMap[Middle]));
+    playlist->addMedia(QUrl::fromLocalFile(mediaMap[High]));
+
+    player->setPlaylist(playlist);
 }
 
 QString NotifyPanel::uuid() const
@@ -111,6 +119,7 @@ void NotifyPanel::confirm()
     currentUuid = "";
     nextNotify();
     if (currentUuid.isEmpty()) {
+        currentPriority = None;
         ledsOff();
         player->stop();
         accept();
@@ -121,7 +130,7 @@ void NotifyPanel::blink()
 {
     isOn = !isOn;
 
-    switch (priority) {
+    switch (currentPriority) {
     case Low:
         Hal::instance()->setBlueLed(isOn);
         break;
@@ -133,13 +142,6 @@ void NotifyPanel::blink()
         break;
     default:
         break;
-    }
-}
-
-void NotifyPanel::playerStateChanged(QMediaPlayer::State state)
-{
-    if (state == QMediaPlayer::StoppedState && !currentUuid.isEmpty()) {
-        player->play();
     }
 }
 
@@ -160,12 +162,12 @@ void NotifyPanel::nextNotify()
 
 void NotifyPanel::showNotify(Priority priority, const QStringList &notify)
 {
-    if (this->priority != priority || player->state() == QMediaPlayer::StoppedState) {
-        this->priority = priority;
+    if (currentPriority != priority) {
+        currentPriority = priority;
         ledsOff();
         timer->start(blinkIntervalMap[priority]);
         player->stop();
-        player->setMedia(QUrl::fromLocalFile(mediaMap[priority]));
+        playlist->setCurrentIndex(priority);
         player->play();
     }
 
