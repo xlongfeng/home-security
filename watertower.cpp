@@ -216,12 +216,13 @@ void WaterTower::responseReceived(char protocol, const QByteArray &data)
         waterLevel = virtualHeight;
 
     emit waterLevelChanged(waterLevel);
+
     if ((distance < heightReserved) && alarmEnabled) {
         if (isConnected && !isAlarm) {
             isAlarm = true;
             emit highWaterLevelAlarm();
         }
-    } else {
+    } else if (distance > (heightReserved + 10)) {
         isAlarm = false;
     }
 }
