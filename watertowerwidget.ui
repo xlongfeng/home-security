@@ -10,6 +10,11 @@
     <height>300</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>16</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>GroupBox</string>
   </property>
@@ -21,24 +26,23 @@
     <widget class="AvatarWidget" name="avatarWidget" native="true">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <layout class="QHBoxLayout" name="infoLayout">
         <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+         <widget class="QLabel" name="volumeLabel">
+          <property name="font">
+           <font>
+            <pointsize>32</pointsize>
+           </font>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
+          <property name="text">
+           <string>Volume</string>
           </property>
-         </spacer>
+         </widget>
         </item>
         <item>
-         <widget class="QLabel" name="waterLevelLabel">
+         <widget class="QLabel" name="unitLabel">
           <property name="text">
-           <string>WL</string>
+           <string>Ton</string>
           </property>
          </widget>
         </item>

@@ -62,6 +62,11 @@ WaterTowerWidget::WaterTowerWidget(int id, QWidget *parent) :
     addressWidget->setValue(waterTower->getAddress());
     connect(addressWidget, SIGNAL(valueChanged(int)), this, SLOT(addressChanged(int)));
 
+    radiusWidget = new QSpinBox();
+    radiusWidget->setRange(20, 300);
+    radiusWidget->setValue(waterTower->getRadius());
+    connect(radiusWidget, SIGNAL(valueChanged(int)), this, SLOT(radiusChanged(int)));
+
     barrelHeightWidget = new QSpinBox();
     barrelHeightWidget->setRange(100, 500);
     barrelHeightWidget->setValue(waterTower->getHeight());
@@ -144,6 +149,11 @@ void WaterTowerWidget::addressChanged(int value)
     waterTower->setAddress(value);
 }
 
+void WaterTowerWidget::radiusChanged(int value)
+{
+    waterTower->setRadius(value);
+}
+
 void WaterTowerWidget::barrelHeightChanged(int value)
 {
     waterTower->setHeight(value);
@@ -161,8 +171,12 @@ void WaterTowerWidget::waterLevelChanged(int centimetre)
     ui->progressBar->setStyleSheet(QString(connectStyle).arg(color, 6, 16, QLatin1Char('0')));
     ui->progressBar->setValue(centimetre);
     // ui->progressBar->setTextVisible(true);
-    ui->waterLevelLabel->setVisible(true);
-    ui->waterLevelLabel->setNum(centimetre);
+
+    double radius = waterTower->getRadius() / 100.0;
+    double volume = 3.1415926 * radius * radius * (centimetre / 100.0);
+    ui->volumeLabel->setText(QString::number(volume, 'f', 1));
+    ui->volumeLabel->setVisible(true);
+    ui->unitLabel->setVisible(true);
 }
 
 void WaterTowerWidget::deviceConnect()
@@ -175,7 +189,8 @@ void WaterTowerWidget::deviceDisconnect()
     ui->progressBar->setStyleSheet(disconnectStyle);
     ui->progressBar->setValue((waterTower->waterLevelMinimum() + waterTower->waterLevelMaxminum()) / 2);
     ui->progressBar->setTextVisible(false);
-    ui->waterLevelLabel->setVisible(false);
+    ui->volumeLabel->setVisible(false);
+    ui->unitLabel->setVisible(false);
 }
 
 void WaterTowerWidget::highWaterLevelAlarm()

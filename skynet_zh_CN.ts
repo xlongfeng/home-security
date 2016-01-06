@@ -96,19 +96,14 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="mainwindow.ui" line="14"/>
-        <source>MainWindow</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="mainwindow.cpp" line="169"/>
-        <location filename="mainwindow.cpp" line="350"/>
+        <location filename="mainwindow.cpp" line="351"/>
         <source>Volume</source>
         <translation>音量</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="181"/>
-        <location filename="mainwindow.cpp" line="344"/>
+        <location filename="mainwindow.cpp" line="345"/>
         <source>Brightness</source>
         <translation>亮度</translation>
     </message>
@@ -170,56 +165,71 @@
         <translation>预留</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="360"/>
+        <location filename="mainwindow.cpp" line="311"/>
+        <source>Radius</source>
+        <translation>半径</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="361"/>
         <source>Date and Time Settings</source>
         <translation>日期和时间设置</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="14"/>
+        <source>Skynet</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>WaterTowerWidget</name>
     <message>
-        <location filename="watertowerwidget.ui" line="14"/>
-        <location filename="watertowerwidget.ui" line="17"/>
+        <location filename="watertowerwidget.ui" line="19"/>
+        <location filename="watertowerwidget.ui" line="22"/>
         <source>GroupBox</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="watertowerwidget.ui" line="41"/>
-        <source>WL</source>
-        <translation type="unfinished"></translation>
+        <location filename="watertowerwidget.ui" line="38"/>
+        <source>Volume</source>
+        <translation>容量</translation>
     </message>
     <message>
-        <location filename="watertowerwidget.cpp" line="85"/>
+        <location filename="watertowerwidget.ui" line="45"/>
+        <source>Ton</source>
+        <translation>吨</translation>
+    </message>
+    <message>
+        <location filename="watertowerwidget.cpp" line="90"/>
         <source>Ground floor</source>
         <translation>一楼</translation>
     </message>
     <message>
-        <location filename="watertowerwidget.cpp" line="87"/>
+        <location filename="watertowerwidget.cpp" line="92"/>
         <source>Second floor</source>
         <translation>二楼</translation>
     </message>
     <message>
-        <location filename="watertowerwidget.cpp" line="89"/>
+        <location filename="watertowerwidget.cpp" line="94"/>
         <source>Seaside</source>
         <translation>海边</translation>
     </message>
     <message>
-        <location filename="watertowerwidget.cpp" line="91"/>
+        <location filename="watertowerwidget.cpp" line="96"/>
         <source>Well</source>
         <translation>井</translation>
     </message>
     <message>
-        <location filename="watertowerwidget.cpp" line="93"/>
+        <location filename="watertowerwidget.cpp" line="98"/>
         <source>Boat</source>
         <translation>船</translation>
     </message>
     <message>
-        <location filename="watertowerwidget.cpp" line="95"/>
+        <location filename="watertowerwidget.cpp" line="100"/>
         <source>Null</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="watertowerwidget.cpp" line="184"/>
+        <location filename="watertowerwidget.cpp" line="199"/>
         <source>%1: High water level!</source>
         <translation>%1: 高水位</translation>
     </message>

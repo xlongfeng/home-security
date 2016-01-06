@@ -33,6 +33,11 @@ public:
         return qobject_cast<QWidget *>(addressWidget);
     }
 
+    QWidget *getRadiusWidget()
+    {
+        return qobject_cast<QWidget *>(radiusWidget);
+    }
+
     QWidget *getBarrelHeightWidget()
     {
         return qobject_cast<QWidget *>(barrelHeightWidget);
@@ -54,6 +59,7 @@ public slots:
     void readyForUse(bool checked);
     void enableAlarm(bool checked);
     void addressChanged(int value);
+    void radiusChanged(int value);
     void barrelHeightChanged(int value);
     void reservedHeightChanged(int value);
     void waterLevelChanged(int centimetre);
@@ -74,6 +80,7 @@ private:
     QCheckBox *enableWidget;
     QCheckBox *enableAlarmWidget;
     QSpinBox *addressWidget;
+    QSpinBox *radiusWidget;
     QSpinBox *barrelHeightWidget;
     QSpinBox *reservedHeightWidget;
     static QSpinBox *sampleIntervalWidget;

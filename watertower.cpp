@@ -106,6 +106,21 @@ void WaterTower::setAlarmEnable(bool enable)
     }
 }
 
+void WaterTower::setRadius(int centimetre)
+{
+    Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
+    Settings::instance()->setValue("radius", centimetre);
+    Settings::instance()->endGroup();
+}
+
+int WaterTower::getRadius()
+{
+    Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
+    int radius = Settings::instance()->value("radius", 100).toInt();
+    Settings::instance()->endGroup();
+    return radius;
+}
+
 void WaterTower::setHeight(int centimetre)
 {
     height = centimetre;

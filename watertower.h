@@ -27,6 +27,9 @@ public:
     bool isAlarmEnabled() const;
     void setAlarmEnable(bool enable);
 
+    void setRadius(int centimetre);
+    int getRadius();
+
     void setHeight(int centimetre);
     int getHeight();
     void setHeightReserved(int centimetre);
