@@ -96,81 +96,131 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="mainwindow.cpp" line="169"/>
-        <location filename="mainwindow.cpp" line="351"/>
+        <location filename="mainwindow.cpp" line="196"/>
+        <location filename="mainwindow.cpp" line="378"/>
         <source>Volume</source>
         <translation>音量</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="181"/>
-        <location filename="mainwindow.cpp" line="345"/>
+        <location filename="mainwindow.cpp" line="208"/>
+        <location filename="mainwindow.cpp" line="372"/>
         <source>Brightness</source>
         <translation>亮度</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="212"/>
-        <location filename="mainwindow.cpp" line="274"/>
+        <location filename="mainwindow.cpp" line="239"/>
+        <location filename="mainwindow.cpp" line="301"/>
         <source>Water Tower</source>
         <translation>水塔监控</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="218"/>
-        <location filename="mainwindow.cpp" line="275"/>
+        <location filename="mainwindow.cpp" line="245"/>
+        <location filename="mainwindow.cpp" line="302"/>
         <source>Baby Care</source>
         <translation>儿童监护</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="224"/>
+        <location filename="mainwindow.cpp" line="251"/>
         <source>Options</source>
         <translation>系统设置</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="276"/>
+        <location filename="mainwindow.cpp" line="303"/>
         <source>General</source>
         <translation>一般选项</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="290"/>
+        <location filename="mainwindow.cpp" line="317"/>
         <source>Sample Interval</source>
         <translation>采样率</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="310"/>
+        <location filename="mainwindow.cpp" line="337"/>
         <source>Name</source>
         <translation>名称</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="310"/>
+        <location filename="mainwindow.cpp" line="337"/>
         <source>Enable</source>
         <translation>启用</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="310"/>
+        <location filename="mainwindow.cpp" line="337"/>
         <source>Alarm</source>
         <translation>报警</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="310"/>
+        <location filename="mainwindow.cpp" line="337"/>
         <source>Address</source>
         <translation>地址</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="311"/>
+        <location filename="mainwindow.cpp" line="338"/>
         <source>Barrel Height</source>
         <translation>高度</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="311"/>
+        <location filename="mainwindow.cpp" line="338"/>
         <source>Reserved Height</source>
         <translation>预留</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="311"/>
+        <location filename="mainwindow.cpp" line="338"/>
         <source>Radius</source>
         <translation>半径</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="361"/>
+        <location filename="mainwindow.cpp" line="380"/>
+        <source>Power Saving</source>
+        <translation>省电管理</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="385"/>
+        <source>1 minutes</source>
+        <translation>1分钟</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="386"/>
+        <source>2 minutes</source>
+        <translation>2分钟</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="387"/>
+        <source>5 minutes</source>
+        <translation>5分钟</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="388"/>
+        <source>10 minutes</source>
+        <translation>10分钟</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="389"/>
+        <source>20 minutes</source>
+        <translation>20分钟</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="390"/>
+        <source>30 minutes</source>
+        <translation>30分钟</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="395"/>
+        <source>Idle</source>
+        <translation>空闲时间</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="398"/>
+        <source>From</source>
+        <translation>开始时间</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="401"/>
+        <source>to</source>
+        <translation>结束时间</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="412"/>
         <source>Date and Time Settings</source>
         <translation>日期和时间设置</translation>
     </message>

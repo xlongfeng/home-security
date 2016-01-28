@@ -10,6 +10,11 @@ class Hal : public QObject
 public:
     static Hal *instance();
 
+    bool isPowerOn()
+    {
+        return !isPowerOff;
+    }
+
     void powerOn();
     void powerOff();
     void togglePower();

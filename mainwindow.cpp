@@ -3,6 +3,7 @@
 #include <QTabWidget>
 #include <QTableWidget>
 #include <QDateTimeEdit>
+#include <QComboBox>
 #include <QTimer>
 #include <QFormLayout>
 #include <QSlider>
@@ -143,6 +144,32 @@ void MainWindow::volumeChanged(int value)
         }
     } else {
 
+    }
+}
+
+void MainWindow::idleTimeChanged(int index)
+{
+    switch(index) {
+    case 0:
+        Settings::instance()->setIdleTime(1);
+        break;
+    case 1:
+        Settings::instance()->setIdleTime(3);
+        break;
+    case 2:
+        Settings::instance()->setIdleTime(5);
+        break;
+    case 3:
+        Settings::instance()->setIdleTime(10);
+        break;
+    case 4:
+        Settings::instance()->setIdleTime(20);
+        break;
+    case 5:
+        Settings::instance()->setIdleTime(30);
+        break;
+    default:
+        break;
     }
 }
 
@@ -349,6 +376,30 @@ QWidget *MainWindow::createGeneralOptions()
     volumeSilder->setValue(Settings::instance()->getVolume() / 10);
     connect(volumeSilder, SIGNAL(valueChanged(int)), this, SLOT(volumeChanged(int)));
     leftLayout->addRow(new QLabel(tr("Volume")), volumeSilder);
+
+    QGroupBox *powerSaving = new QGroupBox(tr("Power Saving"));
+    leftLayout->addRow(powerSaving);
+    {
+        QFormLayout *powerSavingLayout = new QFormLayout(powerSaving);
+        QComboBox *comboBox = new QComboBox();
+        comboBox->addItem(tr("1 minutes"), 1);
+        comboBox->addItem(tr("2 minutes"), 3);
+        comboBox->addItem(tr("5 minutes"), 5);
+        comboBox->addItem(tr("10 minutes"), 10);
+        comboBox->addItem(tr("20 minutes"), 20);
+        comboBox->addItem(tr("30 minutes"), 30);
+        int index = comboBox->findData(Settings::instance()->getIdleTime());
+        if (index != -1)
+            comboBox->setCurrentIndex(index);
+        connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(idleTimeChanged(int)));
+        powerSavingLayout->addRow(new QLabel(tr("Idle")), comboBox);
+        QTimeEdit *fromTimeEdit = new QTimeEdit(Settings::instance()->getIdleTimeFrom());
+        connect(fromTimeEdit, SIGNAL(timeChanged(QTime)), Settings::instance(), SLOT(setIdleTimeFrom(QTime)));
+        powerSavingLayout->addRow(new QLabel(tr("From")), fromTimeEdit);
+        QTimeEdit *toTimeEdit = new QTimeEdit(Settings::instance()->getIdleTimeTo());
+        connect(toTimeEdit, SIGNAL(timeChanged(QTime)), Settings::instance(), SLOT(setIdleTimeTo(QTime)));
+        powerSavingLayout->addRow(new QLabel(tr("to")), toTimeEdit);
+    }
 
     QFrame *line = new QFrame(option);
     line->setFrameShape(QFrame::VLine);

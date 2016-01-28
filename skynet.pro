@@ -28,7 +28,8 @@ SOURCES += main.cpp\
     babycare.cpp \
     hal.cpp \
     datetimesettingsdialog.cpp \
-    watchdog.cpp
+    watchdog.cpp \
+    keypresseater.cpp
 
 HEADERS  += mainwindow.h \
     watertower.h \
@@ -41,7 +42,8 @@ HEADERS  += mainwindow.h \
     babycare.h \
     hal.h \
     datetimesettingsdialog.h \
-    watchdog.h
+    watchdog.h \
+    keypresseater.h
 
 FORMS    += mainwindow.ui \
     watertowerwidget.ui \

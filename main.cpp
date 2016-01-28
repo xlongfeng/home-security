@@ -3,7 +3,9 @@
 #include <QDebug>
 
 #include "watchdog.h"
+#include "keypresseater.h"
 #include "mainwindow.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -13,6 +15,9 @@ int main(int argc, char *argv[])
     translator->load(":/skynet_zh_CN");
     //translator->load("qt_zh_CN");
     a.installTranslator(translator);
+
+    KeyPressEater *keyPressEater = new KeyPressEater();
+    a.installEventFilter(keyPressEater);
 
     a.setStyleSheet("QDialog { background: cyan }");
 

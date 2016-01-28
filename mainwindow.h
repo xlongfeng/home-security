@@ -50,6 +50,7 @@ public slots:
     void dateTimeUpdate();
     void brightnessChanged(int value);
     void volumeChanged(int value);
+    void idleTimeChanged(int index);
     void dateTimeSettings();
     void playerStateChanged(QMediaPlayer::State state);
 
