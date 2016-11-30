@@ -22,6 +22,11 @@ void AvatarWidget::paintEvent(QPaintEvent *event)
     if (pixmap.isNull())
         return;
 
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+    QSize pixmapSize = pixmap.size();
+
+#if 0
     const QRect &rect = event->rect();
     const int w = rect.width();
     const int h = rect.height();
@@ -33,15 +38,13 @@ void AvatarWidget::paintEvent(QPaintEvent *event)
     qDebug() << square;
 
     QRadialGradient gradient(square.center(), sideLength);
-
     gradient.setColorAt(0.5, Qt::green);
     gradient.setColorAt(1, Qt::black);
-
-    QPainter painter(this);
     painter.fillRect(square, gradient);
-    painter.setRenderHint(QPainter::SmoothPixmapTransform);
-    QSize pixmapSize = pixmap.size();
     pixmapSize.scale(event->rect().size() - QSize(8, 8), Qt::KeepAspectRatio);
+#else
+    pixmapSize.scale(event->rect().size(), Qt::KeepAspectRatio);
+#endif
 
     QPoint topleft;
     topleft.setX((this->width() - pixmapSize.width()) / 2);
