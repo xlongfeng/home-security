@@ -1,5 +1,7 @@
 #include <QPixmap>
 #include <QStyleOption>
+#include <QRadialGradient>
+#include <QDebug>
 
 #include "avatarwidget.h"
 
@@ -20,10 +22,26 @@ void AvatarWidget::paintEvent(QPaintEvent *event)
     if (pixmap.isNull())
         return;
 
+    const QRect &rect = event->rect();
+    const int w = rect.width();
+    const int h = rect.height();
+    int sideLength = w < h ? w : h;
+    int x = w < h ? 0 : ((w - h) / 2);
+    int y = h < w ? 0 : ((h - w) / 2);
+    QRect square(x, y, sideLength, sideLength);
+
+    qDebug() << square;
+
+    QRadialGradient gradient(square.center(), sideLength);
+
+    gradient.setColorAt(0.5, Qt::green);
+    gradient.setColorAt(1, Qt::black);
+
     QPainter painter(this);
+    painter.fillRect(square, gradient);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
     QSize pixmapSize = pixmap.size();
-    pixmapSize.scale(event->rect().size(), Qt::KeepAspectRatio);
+    pixmapSize.scale(event->rect().size() - QSize(8, 8), Qt::KeepAspectRatio);
 
     QPoint topleft;
     topleft.setX((this->width() - pixmapSize.width()) / 2);
