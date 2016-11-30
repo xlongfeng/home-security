@@ -9,12 +9,12 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->horizontalSlider0->setRange(5, 20000);
-    ui->horizontalSlider1->setRange(5, 20000);
-    ui->horizontalSlider2->setRange(5, 20000);
-    ui->horizontalSlider3->setRange(5, 20000);
-    ui->horizontalSlider4->setRange(5, 20000);
-    ui->horizontalSlider5->setRange(5, 20000);
+    ui->horizontalSlider0->setRange(0, 4);
+    ui->horizontalSlider1->setRange(0, 4);
+    ui->horizontalSlider2->setRange(0, 8);
+    ui->horizontalSlider3->setRange(0, 8);
+    ui->horizontalSlider4->setRange(0, 8);
+    ui->horizontalSlider5->setRange(0, 8);
 
     sense = new QGraphicsScene(this);
     ui->graphicsView->setScene(sense);
@@ -87,6 +87,7 @@ void MainWindow::readPendingDatagrams()
                 value = 0;
                 break;
             }
+            value = (value + 1) * 5000;
             resp.append((value >> 0) & 0xFF);
             resp.append((value >> 8) & 0xFF);
             resp.append((value >> 16) & 0xFF);

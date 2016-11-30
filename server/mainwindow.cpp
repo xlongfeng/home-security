@@ -335,7 +335,7 @@ QWidget *MainWindow::createWaterTowerOptions()
     table->setShowGrid(true);
     table->setHorizontalHeaderLabels(QStringList()
         << tr("Name") << tr("Enable") << tr("Alarm") << tr("Address")
-        << tr("Radius") << tr("Barrel Height") << tr("Reserved Height"));
+        << tr("Radius") << tr("Level Sensor") << tr("Nunber of Sensors"));
     for (int i = 0; i < WaterTower::MaxQuantity; i++) {
         table->insertRow(i);
         QTableWidgetItem *id = new QTableWidgetItem;
@@ -346,8 +346,8 @@ QWidget *MainWindow::createWaterTowerOptions()
         table->setCellWidget(i, 2, WaterTowerWidget::instance(i)->getAlarmEnableWidget());
         table->setCellWidget(i, 3, WaterTowerWidget::instance(i)->getAddressWidget());
         table->setCellWidget(i, 4, WaterTowerWidget::instance(i)->getRadiusWidget());
-        table->setCellWidget(i, 5, WaterTowerWidget::instance(i)->getBarrelHeightWidget());
-        table->setCellWidget(i, 6, WaterTowerWidget::instance(i)->getReservedHeightWidget());
+        table->setCellWidget(i, 5, WaterTowerWidget::instance(i)->getLevelSensorHeightWidget());
+        table->setCellWidget(i, 6, WaterTowerWidget::instance(i)->getLevelSensorNumberWidget());
     }
     layout->addWidget(table);
 

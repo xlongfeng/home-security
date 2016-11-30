@@ -34,6 +34,9 @@
         </item>
         <item row="0" column="1">
          <widget class="QSlider" name="horizontalSlider0">
+          <property name="pageStep">
+           <number>1</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -48,6 +51,9 @@
         </item>
         <item row="1" column="1">
          <widget class="QSlider" name="horizontalSlider1">
+          <property name="pageStep">
+           <number>1</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -62,6 +68,9 @@
         </item>
         <item row="2" column="1">
          <widget class="QSlider" name="horizontalSlider2">
+          <property name="pageStep">
+           <number>1</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -76,6 +85,9 @@
         </item>
         <item row="3" column="1">
          <widget class="QSlider" name="horizontalSlider3">
+          <property name="pageStep">
+           <number>1</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -90,6 +102,9 @@
         </item>
         <item row="4" column="1">
          <widget class="QSlider" name="horizontalSlider4">
+          <property name="pageStep">
+           <number>1</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -104,6 +119,9 @@
         </item>
         <item row="5" column="1">
          <widget class="QSlider" name="horizontalSlider5">
+          <property name="pageStep">
+           <number>1</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -131,7 +149,7 @@
      <x>0</x>
      <y>0</y>
      <width>400</width>
-     <height>17</height>
+     <height>27</height>
     </rect>
    </property>
   </widget>

@@ -38,14 +38,14 @@ public:
         return qobject_cast<QWidget *>(radiusWidget);
     }
 
-    QWidget *getBarrelHeightWidget()
+    QWidget *getLevelSensorHeightWidget()
     {
-        return qobject_cast<QWidget *>(barrelHeightWidget);
+        return qobject_cast<QWidget *>(levelSensorHeightWidget);
     }
 
-    QWidget *getReservedHeightWidget()
+    QWidget *getLevelSensorNumberWidget()
     {
-        return qobject_cast<QWidget *>(reservedHeightWidget);
+        return qobject_cast<QWidget *>(levelSensorNumberWidget);
     }
 
     static QWidget *getSampleIntervalWidget();
@@ -60,8 +60,8 @@ public slots:
     void enableAlarm(bool checked);
     void addressChanged(int value);
     void radiusChanged(int value);
-    void barrelHeightChanged(int value);
-    void reservedHeightChanged(int value);
+    void levelSensorHeightChanged(int value);
+    void levelSensorNumberChanged(int value);
     void waterLevelChanged(int centimetre);
     void deviceConnect();
     void deviceDisconnect();
@@ -81,8 +81,8 @@ private:
     QCheckBox *enableAlarmWidget;
     QSpinBox *addressWidget;
     QSpinBox *radiusWidget;
-    QSpinBox *barrelHeightWidget;
-    QSpinBox *reservedHeightWidget;
+    QSpinBox *levelSensorHeightWidget;
+    QSpinBox *levelSensorNumberWidget;
     static QSpinBox *sampleIntervalWidget;
 
     static QMap<int, WaterTowerWidget*> instanceMap;

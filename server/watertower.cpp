@@ -7,7 +7,6 @@
 
 
 const quint8 WaterTowerIdentityBase = 0x10;
-const quint32 AcousticVelocity = 340;
 
 const int WaterTower::MaxQuantity = 6;
 quint8 WaterTower::sampleInterval = 10;
@@ -18,8 +17,7 @@ WaterTower::WaterTower(quint8 id, QObject *parent) :
     QObject(parent),
     identity(id),
     com(new MultiPointCom()),
-    height(200),
-    heightReserved(10),
+    height(0),
     waterLevel(0),
     isConnected(false),
     isAlarm(false)
@@ -32,9 +30,10 @@ WaterTower::WaterTower(quint8 id, QObject *parent) :
     connect(com, SIGNAL(deviceDisconnected()), this, SLOT(deviceDisconnect()));
 
     getSampleInterval();
-    getHeight();
-    getHeightReserved();
-    virtualHeight = height - heightReserved;
+    getLevelSensorHeight();
+    getSensorNumber();
+
+    height = levelSensorHeight * numberOfSensors;
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(trigger()));
@@ -91,7 +90,7 @@ bool WaterTower::isAlarmEnabled() const
 {
     bool enable;
     Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
-    enable = Settings::instance()->value("alarm", true).toBool();
+    enable = Settings::instance()->value("alarm", false).toBool();
     Settings::instance()->endGroup();
     return enable;
 }
@@ -121,40 +120,40 @@ int WaterTower::getRadius()
     return radius;
 }
 
-void WaterTower::setHeight(int centimetre)
+void WaterTower::setLevelSensorHeight(int centimetre)
 {
-    height = centimetre;
-    virtualHeight = height - heightReserved;
-    emit waterLevelRangeChanged(0, virtualHeight);
+    levelSensorHeight = centimetre;
+    height = levelSensorHeight * numberOfSensors;
+    emit waterLevelRangeChanged(0, height);
     Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
-    Settings::instance()->setValue("height", height);
+    Settings::instance()->setValue("level-sensor-height", levelSensorHeight);
     Settings::instance()->endGroup();
 }
 
-int WaterTower::getHeight()
+int WaterTower::getLevelSensorHeight()
 {
     Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
-    height = Settings::instance()->value("height", 200).toInt();
+    levelSensorHeight = Settings::instance()->value("level-sensor-height", 40).toInt();
     Settings::instance()->endGroup();
-    return height;
+    return levelSensorHeight;
 }
 
-void WaterTower::setHeightReserved(int centimetre)
+void WaterTower::setSensorNumber(int number)
 {
-    heightReserved = centimetre;
-    virtualHeight = height - heightReserved;
-    emit waterLevelRangeChanged(0, virtualHeight);
+    numberOfSensors = number;
+    height = levelSensorHeight * numberOfSensors;
+    emit waterLevelRangeChanged(0, height);
     Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
-    Settings::instance()->setValue("height-reserved", heightReserved);
+    Settings::instance()->setValue("number-of-sensors", numberOfSensors);
     Settings::instance()->endGroup();
 }
 
-int WaterTower::getHeightReserved()
+int WaterTower::getSensorNumber()
 {
     Settings::instance()->beginGroup(QString("WaterTower-%1").arg(identity));
-    heightReserved = Settings::instance()->value("height-reserved", 10).toInt();
+    numberOfSensors = Settings::instance()->value("number-of-sensors", 8).toInt();
     Settings::instance()->endGroup();
-    return heightReserved;
+    return numberOfSensors;
 }
 
 /* static */
@@ -195,34 +194,57 @@ void WaterTower::responseReceived(char protocol, const QByteArray &data)
         return;
     }
 
-    quint32 microsecond = (quint8)data[0];
-    microsecond = (quint8)data[3];
-    microsecond <<= 8;
-    microsecond |= (quint8)data[2];
-    microsecond <<= 8;
-    microsecond |= (quint8)data[1];
-    microsecond <<= 8;
-    microsecond |= (quint8)data[0];
+    quint32 usec = (quint8)data[0];
+    usec = (quint8)data[3];
+    usec <<= 8;
+    usec |= (quint8)data[2];
+    usec <<= 8;
+    usec |= (quint8)data[1];
+    usec <<= 8;
+    usec |= (quint8)data[0];
 
-    if (microsecond > 60000)
-        microsecond = 60000;
+    if (usec > 60000) {
+        return;
+    }
 
-    int distance = (microsecond * AcousticVelocity) / (10000 * 2);
-    waterLevel = height - distance;
+    int msec = usec / 1000;
 
-    if (waterLevel < 0)
-        waterLevel = 0;
-    if (waterLevel > virtualHeight)
-        waterLevel = virtualHeight;
+    int value;
+
+    if (msec > (45 - 2))
+        value = 9;
+    else if (msec > (40 - 2))
+        value = 8;
+    else if (msec > (35 - 2))
+        value = 7;
+    else if (msec > (30 - 2))
+        value = 6;
+    else if (msec > (25 - 2))
+        value = 5;
+    else if (msec > (20 - 2))
+        value = 4;
+    else if (msec > (15 - 2))
+        value = 3;
+    else if (msec > (10 - 2))
+        value = 2;
+    else if (msec > (5 - 2))
+        value = 1;
+    else
+        return;
+
+    qDebug() << identity << "- value:" << value << msec;
+
+    value = value -1;
+    waterLevel = value * levelSensorHeight;
 
     emit waterLevelChanged(waterLevel);
 
-    if ((distance < heightReserved) && alarmEnabled) {
+    if ((value == numberOfSensors) && alarmEnabled) {
         if (isConnected && !isAlarm) {
             isAlarm = true;
             emit highWaterLevelAlarm();
         }
-    } else if (distance > (heightReserved + 10)) {
+    } else if (value < (numberOfSensors - 1)) {
         isAlarm = false;
     }
 }

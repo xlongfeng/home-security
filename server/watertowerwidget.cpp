@@ -46,7 +46,7 @@ WaterTowerWidget::WaterTowerWidget(int id, QWidget *parent) :
 
     waterTower->getWaterLevel();
     ui->avatarWidget->setPixmap(QPixmap(QString(qApp->applicationDirPath() + "/images/watertower-%1.png").arg(id)));
-    ui->progressBar->setRange(waterTower->waterLevelMinimum(), waterTower->waterLevelMaxminum());
+    ui->progressBar->setRange(0, waterTower->getHeight());
     ui->progressBar->setFormat("%v");
     deviceDisconnect();
     connect(waterTower, SIGNAL(waterLevelRangeChanged(int,int)), ui->progressBar, SLOT(setRange(int,int)));
@@ -67,15 +67,15 @@ WaterTowerWidget::WaterTowerWidget(int id, QWidget *parent) :
     radiusWidget->setValue(waterTower->getRadius());
     connect(radiusWidget, SIGNAL(valueChanged(int)), this, SLOT(radiusChanged(int)));
 
-    barrelHeightWidget = new QSpinBox();
-    barrelHeightWidget->setRange(100, 500);
-    barrelHeightWidget->setValue(waterTower->getHeight());
-    connect(barrelHeightWidget, SIGNAL(valueChanged(int)), this, SLOT(barrelHeightChanged(int)));
+    levelSensorHeightWidget = new QSpinBox();
+    levelSensorHeightWidget->setRange(20, 100);
+    levelSensorHeightWidget->setValue(waterTower->getLevelSensorHeight());
+    connect(levelSensorHeightWidget, SIGNAL(valueChanged(int)), this, SLOT(levelSensorHeightChanged(int)));
 
-    reservedHeightWidget = new QSpinBox();
-    reservedHeightWidget->setRange(5, 500);
-    reservedHeightWidget->setValue(waterTower->getHeightReserved());
-    connect(reservedHeightWidget, SIGNAL(valueChanged(int)), this, SLOT(reservedHeightChanged(int)));
+    levelSensorNumberWidget = new QSpinBox();
+    levelSensorNumberWidget->setRange(1, 8);
+    levelSensorNumberWidget->setValue(waterTower->getSensorNumber());
+    connect(levelSensorNumberWidget, SIGNAL(valueChanged(int)), this, SLOT(levelSensorNumberChanged(int)));
 
     getSampleIntervalWidget();
     connect(sampleIntervalWidget, SIGNAL(valueChanged(int)), this, SLOT(sampleIntervalChanged(int)));
@@ -154,14 +154,14 @@ void WaterTowerWidget::radiusChanged(int value)
     waterTower->setRadius(value);
 }
 
-void WaterTowerWidget::barrelHeightChanged(int value)
+void WaterTowerWidget::levelSensorHeightChanged(int value)
 {
-    waterTower->setHeight(value);
+    waterTower->setLevelSensorHeight(value);
 }
 
-void WaterTowerWidget::reservedHeightChanged(int value)
+void WaterTowerWidget::levelSensorNumberChanged(int value)
 {
-    waterTower->setHeightReserved(value);
+    waterTower->setSensorNumber(value);
 }
 
 void WaterTowerWidget::waterLevelChanged(int centimetre)
@@ -187,7 +187,7 @@ void WaterTowerWidget::deviceConnect()
 void WaterTowerWidget::deviceDisconnect()
 {
     ui->progressBar->setStyleSheet(disconnectStyle);
-    ui->progressBar->setValue((waterTower->waterLevelMinimum() + waterTower->waterLevelMaxminum()) / 2);
+    ui->progressBar->setValue(waterTower->getHeight() / 2);
     ui->progressBar->setTextVisible(false);
     ui->volumeLabel->setVisible(false);
     ui->unitLabel->setVisible(false);

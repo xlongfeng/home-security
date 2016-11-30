@@ -30,19 +30,14 @@ public:
     void setRadius(int centimetre);
     int getRadius();
 
-    void setHeight(int centimetre);
-    int getHeight();
-    void setHeightReserved(int centimetre);
-    int getHeightReserved();
+    void setLevelSensorHeight(int centimetre);
+    int getLevelSensorHeight();
+    void setSensorNumber(int centimetre);
+    int getSensorNumber();
 
-    int waterLevelMinimum() const
+    int getHeight() const
     {
-        return 0;
-    }
-
-    int waterLevelMaxminum() const
-    {
-        return virtualHeight;
+        return height;
     }
 
     int getWaterLevel() const
@@ -82,11 +77,12 @@ private:
 
     bool enabled;
     bool alarmEnabled;
-    /*  measured in the unit of "centimetre"  */
-    int height;
-    int heightReserved;
-    int virtualHeight;
-    int waterLevel;
+
+    int levelSensorHeight;  /*  measured in the unit of "centimetre"  */
+    int numberOfSensors;
+
+    int height;             /*  watertower height, measured in the unit of "centimetre"  */
+    int waterLevel;         /*  measured in the unit of "centimetre"  */
 
     bool isConnected;
     bool isAlarm;
