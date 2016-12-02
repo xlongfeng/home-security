@@ -232,8 +232,6 @@ void WaterTower::responseReceived(char protocol, const QByteArray &data)
     else
         return;
 
-    qDebug() << identity << "- value:" << value << msec;
-
     value = value -1;
     waterLevel = value * levelSensorHeight;
 

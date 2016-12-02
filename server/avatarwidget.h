@@ -1,27 +1,23 @@
 #ifndef AVATARWIDGET_H
 #define AVATARWIDGET_H
 
-#include <QWidget>
-#include <QPainter>
-#include <QPaintEvent>
+#include <QLabel>
 
-class AvatarWidget : public QWidget
+class AvatarWidget : public QLabel
 {
     Q_OBJECT
 public:
     explicit AvatarWidget(QWidget *parent = 0);
+    void setAvatar(const QPixmap &pixmap);
 
-    void setPixmap(const QPixmap &pixmap)
-    {
-        this->pixmap = pixmap;
-        update();
-    }
+    virtual QSize minimumSizeHint() const;
 
 protected:
-    virtual void paintEvent(QPaintEvent *event);
+    void resizeEvent(QResizeEvent *event);
 
 private:
-    QPixmap pixmap;
+    QPixmap avatar;
+
 };
 
 #endif // AVATARWIDGET_H

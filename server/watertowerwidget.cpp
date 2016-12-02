@@ -9,6 +9,9 @@
 QSpinBox *WaterTowerWidget::sampleIntervalWidget = 0;
 QMap<int, WaterTowerWidget*> WaterTowerWidget::instanceMap;
 
+const char *volumeStyle =
+    "color: #%1;";
+
 const char *connectStyle =
     "QProgressBar {"
         "border: 2px solid grey;"
@@ -45,7 +48,7 @@ WaterTowerWidget::WaterTowerWidget(int id, QWidget *parent) :
     connect(waterTower, SIGNAL(highWaterLevelAlarm()), this, SLOT(highWaterLevelAlarm()));
 
     waterTower->getWaterLevel();
-    ui->avatarWidget->setPixmap(QPixmap(QString(qApp->applicationDirPath() + "/images/watertower-%1.png").arg(id)));
+    ui->avatarWidget->setAvatar(QPixmap(QString(qApp->applicationDirPath() + "/images/watertower-%1.png").arg(id)));
     ui->progressBar->setRange(0, waterTower->getHeight());
     ui->progressBar->setFormat("%v");
     deviceDisconnect();
@@ -168,6 +171,7 @@ void WaterTowerWidget::waterLevelChanged(int centimetre)
 {
     int maximum = ui->progressBar->maximum();
     int color = ((0xff * centimetre / maximum) << 16) + (0xff * (maximum - centimetre) / maximum);
+    ui->volumeLabel->setStyleSheet(QString(volumeStyle).arg(color, 6, 16, QLatin1Char('0')));
     ui->progressBar->setStyleSheet(QString(connectStyle).arg(color, 6, 16, QLatin1Char('0')));
     ui->progressBar->setValue(centimetre);
     // ui->progressBar->setTextVisible(true);
@@ -176,7 +180,6 @@ void WaterTowerWidget::waterLevelChanged(int centimetre)
     double volume = 3.1415926 * radius * radius * (centimetre / 100.0);
     ui->volumeLabel->setText(QString::number(volume, 'f', 1));
     ui->volumeLabel->setVisible(true);
-    ui->unitLabel->setVisible(true);
 }
 
 void WaterTowerWidget::deviceConnect()
@@ -190,7 +193,6 @@ void WaterTowerWidget::deviceDisconnect()
     ui->progressBar->setValue(waterTower->getHeight() / 2);
     ui->progressBar->setTextVisible(false);
     ui->volumeLabel->setVisible(false);
-    ui->unitLabel->setVisible(false);
 }
 
 void WaterTowerWidget::highWaterLevelAlarm()

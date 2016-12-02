@@ -76,7 +76,7 @@ void NotifyPanel::addNotify(const QString &uuid, Priority priority, const QStrin
 {
     if (uuid == currentUuid) {
         message->setText(text);
-        avatar->setPixmap(QPixmap(icon));
+        avatar->setAvatar(QPixmap(icon));
         return;
     }
 
@@ -173,7 +173,7 @@ void NotifyPanel::showNotify(Priority priority, const QStringList &notify)
 
     currentUuid = notify[0];
     message->setText(notify[1]);
-    avatar->setPixmap(QPixmap(notify[2]));
+    avatar->setAvatar(QPixmap(notify[2]));
     if (!isVisible()) {
         exec();
     }
