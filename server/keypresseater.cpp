@@ -30,6 +30,7 @@ bool KeyPressEater::eventFilter(QObject *obj, QEvent *event)
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonDblClick:
     case QEvent::Wheel:
+        emit mouseActive();
         timer->start(idleTime * 60 * 1000);
         break;
     default:

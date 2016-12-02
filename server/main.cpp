@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
 #ifdef __arm__
     w.showFullScreen();
 #endif
+    QObject::connect(keyPressEater, SIGNAL(mouseActive()), &w, SLOT(showLeftPanel()));
     w.show();
 
     return a.exec();

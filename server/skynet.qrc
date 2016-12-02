@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>skynet_zh_CN.qm</file>
+        <file>images/handle.png</file>
     </qresource>
 </RCC>

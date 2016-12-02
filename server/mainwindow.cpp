@@ -60,6 +60,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->listWidget->setMovement(QListView::Static);
     ui->listWidget->setSpacing(12);
     ui->listWidget->setFixedWidth(128);
+    ui->listWidget->setHidden(true);
+    hidePanelTimer = new QTimer(this);
+    connect(hidePanelTimer, SIGNAL(timeout()), this, SLOT(hideLeftPanel()));
 
     createIcons();
 
@@ -76,6 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
     dateTime = new QDateTimeEdit(QDateTime::currentDateTime(), this);
     dateTime->setReadOnly(true);
     dateTime->setButtonSymbols(QAbstractSpinBox::NoButtons);
+    dateTime->setFocusPolicy(Qt::NoFocus);
     dateTimeDisplayFormat();
     ui->statusBar->addPermanentWidget(dateTime);
 
@@ -93,6 +97,18 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::showLeftPanel()
+{
+    ui->listWidget->setHidden(false);
+    hidePanelTimer->start(30000);
+}
+
+void MainWindow::hideLeftPanel()
+{
+    ui->listWidget->setHidden(true);
+    hidePanelTimer->stop();
 }
 
 void MainWindow::pageChanged(QListWidgetItem *current, QListWidgetItem *previous)
@@ -214,6 +230,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
     case Qt::Key_PowerOff:
     {
+        event->accept();
         Hal::instance()->togglePower();
         break;
     }
@@ -221,6 +238,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         QMainWindow::keyPressEvent(event);
         break;
     }
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent *event)
+{
+    QMainWindow::mouseMoveEvent(event);
 }
 
 void MainWindow::dateTimeDisplayFormat()

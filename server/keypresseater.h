@@ -11,6 +11,9 @@ class KeyPressEater : public QObject
 public:
     explicit KeyPressEater(QObject *parent = 0);
 
+signals:
+    void mouseActive();
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 

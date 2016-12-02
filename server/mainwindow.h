@@ -45,6 +45,8 @@ public:
     ~MainWindow();
 
 public slots:
+    void showLeftPanel();
+    void hideLeftPanel();
     void pageChanged(QListWidgetItem *current, QListWidgetItem *previous);
     void waterTowerLayoutChanged();
     void dateTimeUpdate();
@@ -56,6 +58,7 @@ public slots:
 
 protected:
     virtual void keyPressEvent(QKeyEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
 
 private:
     void dateTimeDisplayFormat();
@@ -69,6 +72,7 @@ private:
 
 private:
     Ui::MainWindow *ui;
+    QTimer *hidePanelTimer;
     QSlider *brightnessSilder;
     QSlider *volumeSilder;
     QDateTimeEdit *dateTime;
