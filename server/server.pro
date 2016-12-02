@@ -53,3 +53,6 @@ TRANSLATIONS += skynet_zh_CN.ts
 
 RESOURCES += \
     skynet.qrc
+
+OTHER_FILES += \
+    skynet_zh_CN.ts
